@@ -1,0 +1,102 @@
+{% extends "admin_base.html" %}
+{% block style %}
+  .panel { background: #fff; border: 1px solid #e5e8ef; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  textarea {
+    width: 100%; min-height: 140px; padding: 12px; font-size: 14px; line-height: 1.7;
+    border: 1px solid #d6dbe4; border-radius: 8px; font-family: inherit; resize: vertical; outline: none;
+  }
+  textarea:focus { border-color: #2f6bff; }
+  .btn { padding: 8px 18px; border: none; border-radius: 8px; background: #2f6bff;
+         color: #fff; font-size: 14px; cursor: pointer; }
+  .btn:disabled { background: #a9c0f5; cursor: not-allowed; }
+  .btn.ghost { background: #fff; color: #2f6bff; border: 1px solid #b9cdf5; }
+  .msg { font-size: 13px; margin-left: 10px; }
+  .msg.ok { color: #0a7d43; } .msg.bad { color: #b4232a; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eef0f5; }
+  th { color: #8a94a6; font-weight: 500; background: #fafbfd; }
+  .tag { font-size: 12px; padding: 2px 8px; border-radius: 8px; }
+  .tag.on { background: #e6f6ee; color: #0a7d43; }
+  .ver-content { max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: bottom; }
+  .effective-note { font-size: 12px; color: #8a94a6; margin-top: 8px; }
+{% endblock %}
+{% block content %}
+  <!-- 编辑区：保存即写库并激活 → 问答实时读库，下一次提问即生效 -->
+  <div class="panel">
+    <div style="font-weight:600;margin-bottom:12px;">
+      当前生效模板 <span id="verBadge" class="tag on"></span>
+    </div>
+    <textarea id="content" placeholder="编辑系统提示词…"></textarea>
+    <div style="margin-top:12px;display:flex;align-items:center;">
+      <button class="btn" id="saveBtn">保存并生效</button>
+      <span id="msg" class="msg"></span>
+    </div>
+    <div class="effective-note">保存后写入数据库并立即激活：员工下一次提问即使用新模板（无需重启服务）。</div>
+  </div>
+
+  <!-- 版本历史：可一键回滚 -->
+  <div class="panel">
+    <div style="font-weight:600;margin-bottom:12px;">版本历史</div>
+    <table>
+      <thead><tr><th>版本</th><th>内容摘要</th><th>修改人</th><th>修改时间</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+{% endblock %}
+{% block script %}
+const msgEl = document.getElementById("msg");
+function setMsg(text, okFlag) { msgEl.textContent = text; msgEl.className = "msg " + (okFlag ? "ok" : "bad"); }
+
+/* 加载当前模板 + 版本历史 */
+async function load() {
+  const cur = await (await fetch("/api/admin/prompt")).json();
+  if (cur.code === 0 && cur.data.content) {
+    document.getElementById("content").value = cur.data.content;
+    document.getElementById("verBadge").textContent = `v${cur.data.version} 生效中`;
+  }
+  const j = await (await fetch("/api/admin/prompt/versions")).json();
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+  for (const v of j.data) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>v${v.version}</td>
+      <td><span class="ver-content" title="${v.content.replace(/"/g, '&quot;')}">${v.content}</span></td>
+      <td>${v.updated_by}</td>
+      <td>${v.updated_at}</td>
+      <td>${v.is_active ? '<span class="tag on">生效中</span>' : '-'}</td>
+      <td>${v.is_active ? '' : `<button class="btn ghost" data-id="${v.id}">回滚到此版</button>`}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+/* 保存新版本并激活 */
+document.getElementById("saveBtn").addEventListener("click", async () => {
+  const content = document.getElementById("content").value.trim();
+  if (!content) { setMsg("提示词内容不能为空", false); return; }
+  const btn = document.getElementById("saveBtn");
+  btn.disabled = true;
+  try {
+    const j = await (await fetch("/api/admin/prompt", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    })).json();
+    if (j.code !== 0) { setMsg(`[${j.code}] ${j.message}`, false); return; }
+    setMsg(j.message, true);
+    await load();
+  } finally { btn.disabled = false; }
+});
+
+/* 回滚到历史版本 */
+document.getElementById("tbody").addEventListener("click", async (e) => {
+  const btn = e.target.closest("button.ghost");
+  if (!btn) return;
+  if (!confirm("确认回滚到该版本？立即对问答生效。")) return;
+  const j = await (await fetch(`/api/admin/prompt/versions/${btn.dataset.id}/activate`, { method: "POST" })).json();
+  if (j.code !== 0) { alert(`[${j.code}] ${j.message}`); return; }
+  await load();
+});
+
+load();
+{% endblock %}

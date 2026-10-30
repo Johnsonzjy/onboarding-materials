@@ -1,0 +1,20 @@
+{% extends "admin_base.html" %}
+{% block style %}
+  /* 仪表盘：统计卡片网格 */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+  .card { background: #fff; border: 1px solid #e5e8ef; border-radius: 12px; padding: 20px; }
+  .card .label { font-size: 13px; color: #8a94a6; }
+  .card .num { font-size: 30px; font-weight: 700; color: #1f2d4d; margin-top: 8px; }
+  .card.warn .num { color: #b45309; }
+  .tip { margin-top: 22px; font-size: 13px; color: #8a94a6; }
+{% endblock %}
+{% block content %}
+  <div class="cards">
+    <div class="card"><div class="label">会话总数</div><div class="num">{{ stats.sessions }}</div></div>
+    <div class="card"><div class="label">消息总数</div><div class="num">{{ stats.messages }}</div></div>
+    <div class="card"><div class="label">制度文档</div><div class="num">{{ stats.kb_docs }}</div></div>
+    <div class="card"><div class="label">知识库切片</div><div class="num">{{ stats.kb_chunks }}</div></div>
+    <div class="card warn"><div class="label">疑似违规问答</div><div class="num">{{ stats.violations }}</div></div>
+  </div>
+  <div class="tip">提示：知识库文档管理在批2 上线；提示词模板在批3；对话审计与违规统计在批4。</div>
+{% endblock %}

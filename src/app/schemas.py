@@ -13,6 +13,9 @@ CODE_SESSION_NOT_FOUND = 1002  # 会话不存在
 CODE_KB_NOT_READY = 1003    # 知识库未初始化或为空
 CODE_LLM = 3001             # LLM 调用失败
 CODE_INTERNAL = 5000        # 系统内部错误
+CODE_UNAUTHORIZED = 1004    # 未登录 / 令牌无效或过期
+CODE_FORBIDDEN = 1005       # 已登录但权限不足（需管理员）
+CODE_AUTH_FAILED = 1006     # 登录失败（用户名或密码错误）
 
 
 def ok(data=None, message: str = "ok") -> dict:
@@ -54,4 +57,19 @@ class ChatRequest(BaseModel):
             raise ValueError("问题内容不能为空")
         if len(v) > 500:
             raise ValueError("问题长度不能超过 500 字")
+        return v
+
+
+class LoginRequest(BaseModel):
+    """POST /api/auth/login 请求体"""
+    username: str
+    password: str
+
+    @field_validator("username", "password")
+    @classmethod
+    def not_empty(cls, v: str, info) -> str:
+        """登录字段中文校验"""
+        v = (v or "").strip()
+        if not v:
+            raise ValueError(f"{info.field_name} 不能为空")
         return v

@@ -19,6 +19,7 @@ from typing import AsyncGenerator
 from fastapi.responses import StreamingResponse
 
 from app import db
+from app.audit import scan_violation
 from app.rag import KB, stream_llm
 from app.schemas import CODE_INTERNAL, CODE_LLM, ChatRequest
 
@@ -56,9 +57,12 @@ async def chat_generator(session_id: str, req: ChatRequest) -> AsyncGenerator[st
         rows = db.get_recent_messages(session_id, limit=13)
         history = rows[:-1] if rows else []
 
+        # ---- 批3：系统提示词实时读库（管理员改模板 → 下一次问答即生效）----
+        system_prompt = db.get_active_prompt()
+
         # ---- 4. 流式生成：逐段推 delta，同时累计全文 ----
         full_answer: list[str] = []
-        async for piece in _generate_safe(history, req.question, hits):
+        async for piece in _generate_safe(history, req.question, hits, system_prompt):
             full_answer.append(piece)
             yield _sse("delta", {"content": piece})
 
@@ -78,10 +82,11 @@ async def chat_generator(session_id: str, req: ChatRequest) -> AsyncGenerator[st
                              "message": "系统内部错误，请稍后重试"})
 
 
-async def _generate_safe(history: list[dict], question: str, hits: list[dict]):
+async def _generate_safe(history: list[dict], question: str, hits: list[dict],
+                         system_prompt: str | None):
     """LLM 生成包装：模型相关异常统一打上 LLMError 标记再上抛"""
     try:
-        async for piece in stream_llm(history, question, hits):
+        async for piece in stream_llm(history, question, hits, system_prompt):
             yield piece
     except Exception as e:   # noqa: BLE001
         raise LLMError(f"大模型调用失败：{e}") from e
@@ -98,7 +103,10 @@ def build_chat_response(req: ChatRequest) -> StreamingResponse:
         session_id = db.create_session(db.DEMO_USER_ID, req.question)
 
     # 用户问题先落库：即使后续流式失败，历史里也保留员工问过什么
-    db.add_message(session_id, "user", req.question)
+    # 批4：落库同时跑违规扫描（命中规则则把标记写入 meta.violation，审计页可筛）
+    violation = scan_violation(req.question)
+    db.add_message(session_id, "user", req.question,
+                   meta={"violation": violation} if violation else None)
 
     return StreamingResponse(
         chat_generator(session_id, req),

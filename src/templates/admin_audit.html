@@ -1,0 +1,98 @@
+{% extends "admin_base.html" %}
+{% block style %}
+  .panel { background: #fff; border: 1px solid #e5e8ef; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: #8a94a6; }
+  .field select, .field input {
+    padding: 8px 10px; font-size: 13px; border: 1px solid #d6dbe4; border-radius: 8px; outline: none;
+  }
+  .btn { padding: 8px 18px; border: none; border-radius: 8px; background: #2f6bff;
+         color: #fff; font-size: 14px; cursor: pointer; }
+  .btn.ghost { background: #fff; color: #5a6478; border: 1px solid #d6dbe4; }
+  .check { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #4a5568; padding-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eef0f5; vertical-align: top; }
+  th { color: #8a94a6; font-weight: 500; background: #fafbfd; }
+  tr.violation { background: #fff8f5; }
+  tr.violation td:first-child { border-left: 3px solid #e8734a; }
+  .vtag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 8px;
+          background: #fdecec; color: #b4232a; margin-bottom: 4px; }
+  .role-tag { font-size: 12px; color: #5a6478; }
+  .content-cell { max-width: 520px; white-space: pre-wrap; word-break: break-word; }
+  .empty { text-align: center; color: #98a1b3; padding: 30px 0; }
+{% endblock %}
+{% block content %}
+  <!-- 筛选栏：员工 / 时间范围 / 仅看疑似违规 -->
+  <div class="panel">
+    <div class="filters">
+      <div class="field">
+        <label>员工</label>
+        <select id="employee">
+          <option value="">全部员工</option>
+          {% for e in employees %}<option value="{{ e.employee_no }}">{{ e.name }}（{{ e.employee_no }}）</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field"><label>开始日期</label><input type="date" id="start"></div>
+      <div class="field"><label>结束日期</label><input type="date" id="end"></div>
+      <label class="check"><input type="checkbox" id="vOnly"> 仅看疑似违规</label>
+      <button class="btn" id="queryBtn">查 询</button>
+      <button class="btn ghost" id="resetBtn">重 置</button>
+    </div>
+  </div>
+
+  <!-- 审计结果：疑似违规行标红并展示违规原因 -->
+  <div class="panel">
+    <table>
+      <thead><tr><th>时间</th><th>员工</th><th>角色</th><th>内容</th><th>疑似违规</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div id="empty" class="empty">暂无记录</div>
+  </div>
+{% endblock %}
+{% block script %}
+const tbody = document.getElementById("tbody");
+
+async function query() {
+  // 组装筛选参数
+  const p = new URLSearchParams();
+  if (document.getElementById("employee").value) p.set("employee_no", document.getElementById("employee").value);
+  if (document.getElementById("start").value) p.set("start", document.getElementById("start").value);
+  if (document.getElementById("end").value) p.set("end", document.getElementById("end").value);
+  if (document.getElementById("vOnly").checked) p.set("violation_only", "1");
+
+  const j = await (await fetch(`/api/admin/audit?${p}`)).json();
+  const rows = j.data || [];
+  tbody.innerHTML = "";
+  document.getElementById("empty").style.display = rows.length ? "none" : "block";
+
+  for (const r of rows) {
+    const tr = document.createElement("tr");
+    if (r.violation) tr.className = "violation";       // 疑似违规整行标红
+    const roleText = r.role === "user" ? "员工提问" : "助手回答";
+    const summary = r.content.length > 160 ? r.content.slice(0, 160) + "…" : r.content;
+    const vHtml = r.violation
+      ? `<span class="vtag">⚠ ${r.violation.reasons.join("；")}</span><br>
+         <span style="font-size:12px;color:#98a1b3;">命中：${r.violation.matched.join("、")}</span>`
+      : "-";
+    tr.innerHTML = `
+      <td style="white-space:nowrap;">${r.created_at}</td>
+      <td style="white-space:nowrap;">${r.employee_name}<br><span style="color:#98a1b3;font-size:12px;">${r.employee_no}</span></td>
+      <td class="role-tag">${roleText}</td>
+      <td class="content-cell">${summary.replace(/</g, "&lt;")}</td>
+      <td>${vHtml}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+document.getElementById("queryBtn").addEventListener("click", query);
+document.getElementById("resetBtn").addEventListener("click", () => {
+  document.getElementById("employee").value = "";
+  document.getElementById("start").value = "";
+  document.getElementById("end").value = "";
+  document.getElementById("vOnly").checked = false;
+  query();
+});
+
+query();   // 首次进入默认查全量
+{% endblock %}

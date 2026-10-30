@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>登录 · 入职制度智能问答</title>
+<style>
+  /* ===== SaaS 登录页：居中卡片，浅色底 ===== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    background: linear-gradient(135deg, #eef2f8 0%, #e3ebf7 100%);
+    height: 100vh; display: flex; align-items: center; justify-content: center;
+  }
+  .card {
+    width: 380px; background: #fff; border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(30, 50, 90, 0.10); padding: 36px 32px;
+  }
+  .logo { text-align: center; font-size: 20px; font-weight: 700; color: #1f2d4d; }
+  .logo .emoji { font-size: 26px; }
+  .sub { text-align: center; font-size: 12px; color: #8a94a6; margin: 6px 0 26px; }
+  label { display: block; font-size: 13px; color: #4a5568; margin: 14px 0 6px; }
+  input {
+    width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid #d6dbe4;
+    border-radius: 8px; outline: none; transition: border 0.15s;
+  }
+  input:focus { border-color: #2f6bff; }
+  button {
+    width: 100%; margin-top: 24px; padding: 11px; border: none; border-radius: 8px;
+    background: #2f6bff; color: #fff; font-size: 15px; cursor: pointer;
+  }
+  button:disabled { background: #a9c0f5; cursor: not-allowed; }
+  #err { color: #b4232a; font-size: 13px; text-align: center; min-height: 18px; margin-top: 12px; }
+  .tips { margin-top: 18px; font-size: 12px; color: #98a1b3; line-height: 1.8;
+          background: #f6f8fc; border-radius: 8px; padding: 10px 12px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo"><span class="emoji">📋</span> 入职制度智能问答</div>
+    <div class="sub">跨区域入职材料一次告知 · 业务挖掘平台</div>
+
+    <label>用户名</label>
+    <input id="username" placeholder="员工工号或管理员账号" autocomplete="username">
+    <label>密码</label>
+    <input id="password" type="password" placeholder="请输入密码" autocomplete="current-password">
+    <button id="btn">登 录</button>
+    <div id="err"></div>
+
+    <div class="tips">
+      演示账号（批1 种子数据）：<br>
+      员工：demo001 / 123456　　管理员：admin / admin123
+    </div>
+  </div>
+
+<script>
+/* 登录提交：成功后按角色跳转（管理员→后台，员工→聊天页） */
+async function doLogin() {
+  const btn = document.getElementById("btn");
+  const err = document.getElementById("err");
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+  if (!username || !password) { err.textContent = "请输入用户名和密码"; return; }
+
+  btn.disabled = true; err.textContent = "";
+  try {
+    const resp = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const j = await resp.json();
+    if (j.code !== 0) {                     // 统一错误结构：1001/1006 等
+      err.textContent = j.message || "登录失败";
+      return;
+    }
+    localStorage.setItem("chat_token", j.data.token);   // API 调用用 Bearer 头
+    location.href = j.data.redirect;                     // Cookie 已由服务端写入
+  } catch (e) {
+    err.textContent = "网络异常，请重试";
+  } finally {
+    btn.disabled = false;
+  }
+}
+document.getElementById("btn").addEventListener("click", doLogin);
+document.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+</script>
+</body>
+</html>

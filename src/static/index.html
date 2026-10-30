@@ -22,11 +22,11 @@
   header .actions { display: flex; align-items: center; gap: 10px; }
   .badge { font-size: 12px; color: #0a7d43; background: #e6f6ee; padding: 3px 10px; border-radius: 10px; }
   .badge.bad { color: #b4232a; background: #fdecec; }
-  #newChat {
+  #newChat, #logout {
     font-size: 13px; padding: 6px 14px; border: 1px solid #d6dbe4; background: #fff;
     border-radius: 8px; cursor: pointer;
   }
-  #newChat:hover { background: #f5f7fa; }
+  #newChat:hover, #logout:hover { background: #f5f7fa; }
   /* ===== 消息区 ===== */
   main { flex: 1; overflow-y: auto; padding: 20px 12%; }
   .row { display: flex; margin-bottom: 16px; }
@@ -80,8 +80,10 @@
 <header>
   <div class="title">📋 入职制度智能问答<span class="sub">跨区域入职材料一次告知 · 业务挖掘</span></div>
   <div class="actions">
+    <span id="userBadge" class="badge" style="background:#eef3ff;color:#2f6bff;"></span>
     <span id="kbBadge" class="badge">检测中…</span>
     <button id="newChat">＋ 新会话</button>
+    <button id="logout">退出</button>
   </div>
 </header>
 
@@ -102,12 +104,27 @@ const sendBtn = document.getElementById("send");
 const statusBar = document.getElementById("statusBar");
 const statusText = document.getElementById("statusText");
 const kbBadge = document.getElementById("kbBadge");
+const userBadge = document.getElementById("userBadge");
 
 let sessionId = localStorage.getItem("chat_session_id") || null;  // 会话续接
 let streaming = false;                                            // 是否正在流式输出
 
-/* ================= 启动：健康检查 + 历史恢复 ================= */
+/* 登录令牌（批1）：API 调用统一带 Bearer 头 */
+const token = localStorage.getItem("chat_token") || null;
+function authHeaders(extra = {}) {
+  return token ? { "Authorization": `Bearer ${token}`, ...extra } : extra;
+}
+
+/* ================= 启动：登录态校验 → 健康检查 → 历史恢复 ================= */
 (async function init() {
+  // 1. 登录态校验：令牌缺失或失效 → 回登录页
+  try {
+    const me = await (await fetch("/api/auth/me", { headers: authHeaders() })).json();
+    if (me.code !== 0) { location.href = "/login"; return; }
+    userBadge.textContent = `${me.data.name}（${me.data.role === "admin" ? "管理员" : "员工"}）`;
+  } catch (e) { location.href = "/login"; return; }
+
+  // 2. 知识库健康检查
   try {
     const h = await (await fetch("/health")).json();
     kbBadge.textContent = h.data && h.data.knowledge_ready
@@ -115,12 +132,13 @@ let streaming = false;                                            // 是否正�
     kbBadge.className = "badge" + (h.data && h.data.knowledge_ready ? "" : " bad");
   } catch (e) { kbBadge.textContent = "服务未连接"; kbBadge.className = "badge bad"; }
 
-  if (sessionId) await loadHistory(sessionId);   // 刷新后恢复上次会话
+  // 3. 恢复上次会话
+  if (sessionId) await loadHistory(sessionId);
 })();
 
-/* 拉取历史消息并渲染（含引用卡片） */
+/* 历史拉取（含登录态） */
 async function loadHistory(sid) {
-  const res = await fetch(`/sessions/${sid}/history`);
+  const res = await fetch(`/sessions/${sid}/history`, { headers: authHeaders() });
   const j = await res.json();
   if (j.code !== 0) { localStorage.removeItem("chat_session_id"); sessionId = null; return; }
   for (const m of j.data.messages) {
@@ -193,9 +211,12 @@ async function send() {
     // POST 不能用 EventSource，用 fetch + ReadableStream 手工解析 SSE 帧
     const resp = await fetch("/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ session_id: sessionId, question }),
     });
+
+    // 登录态失效（批1 起 /chat 需 JWT）→ 回登录页
+    if (resp.status === 401) { localStorage.removeItem("chat_token"); location.href = "/login"; return; }
 
     // 流开始前出错（参数/会话/知识库）→ 返回的是 JSON 错误结构
     if (!resp.ok || !(resp.headers.get("content-type") || "").includes("event-stream")) {
@@ -262,6 +283,12 @@ document.getElementById("newChat").addEventListener("click", () => {
   localStorage.removeItem("chat_session_id");
   sessionId = null; chatBox.innerHTML = "";
   input.focus();
+});
+/* 退出登录：清本地令牌 → 登录页 */
+document.getElementById("logout").addEventListener("click", async () => {
+  await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+  localStorage.removeItem("chat_token");
+  location.href = "/login";
 });
 </script>
 </body>

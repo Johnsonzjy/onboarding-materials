@@ -1,0 +1,95 @@
+{% extends "admin_base.html" %}
+{% block style %}
+  /* 上传区 + 文档表格 */
+  .panel { background: #fff; border: 1px solid #e5e8ef; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .upload-row { display: flex; gap: 10px; align-items: center; }
+  .upload-row input[type=file] { flex: 1; font-size: 14px; }
+  .btn { padding: 8px 18px; border: none; border-radius: 8px; background: #2f6bff;
+         color: #fff; font-size: 14px; cursor: pointer; }
+  .btn:disabled { background: #a9c0f5; cursor: not-allowed; }
+  .btn.danger { background: #fff; color: #b4232a; border: 1px solid #e8b4b8; }
+  .btn.danger:hover { background: #fdecec; }
+  .msg { font-size: 13px; margin-left: 10px; }
+  .msg.ok { color: #0a7d43; } .msg.bad { color: #b4232a; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eef0f5; }
+  th { color: #8a94a6; font-weight: 500; background: #fafbfd; }
+  .tag { font-size: 12px; padding: 2px 8px; border-radius: 8px; }
+  .tag.md { background: #e6f6ee; color: #0a7d43; }
+  .tag.pdf { background: #fdecec; color: #b4232a; }
+  .empty { text-align: center; color: #98a1b3; padding: 30px 0; }
+{% endblock %}
+{% block content %}
+  <!-- 上传区：md/pdf → 服务端切片 → 向量化 → 重建索引（立即生效） -->
+  <div class="panel">
+    <div style="font-weight:600;margin-bottom:12px;">上传制度文档（.md / .pdf，≤10MB，入库后立即参与问答检索）</div>
+    <div class="upload-row">
+      <input type="file" id="file" accept=".md,.markdown,.pdf">
+      <button class="btn" id="uploadBtn">上传入库</button>
+      <span id="msg" class="msg"></span>
+    </div>
+  </div>
+
+  <!-- 文档列表 -->
+  <div class="panel">
+    <div style="font-weight:600;margin-bottom:12px;">已入库文档</div>
+    <table>
+      <thead><tr><th>文件名</th><th>类型</th><th>切片数</th><th>上传时间</th><th>操作</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div id="empty" class="empty hidden">暂无文档</div>
+  </div>
+
+{% endblock %}
+{% block script %}
+const tbody = document.getElementById("tbody");
+const msgEl = document.getElementById("msg");
+function setMsg(text, okFlag) { msgEl.textContent = text; msgEl.className = "msg " + (okFlag ? "ok" : "bad"); }
+
+/* 加载文档列表 */
+async function loadList() {
+  const j = await (await fetch("/api/admin/kb/list")).json();
+  if (j.code !== 0) { setMsg(j.message, false); return; }
+  const docs = j.data;
+  tbody.innerHTML = "";
+  document.getElementById("empty").classList.toggle("hidden", docs.length > 0);
+  for (const d of docs) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${d.original_name}</td>
+      <td><span class="tag ${d.file_type === 'pdf' ? 'pdf' : 'md'}">${d.file_type.toUpperCase()}</span></td>
+      <td>${d.chunk_count}</td>
+      <td>${d.created_at}</td>
+      <td><button class="btn danger" data-id="${d.id}" data-name="${d.original_name}">删除</button></td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+/* 上传：FormData 走 multipart，后端切片+向量化+重建索引 */
+document.getElementById("uploadBtn").addEventListener("click", async () => {
+  const f = document.getElementById("file").files[0];
+  if (!f) { setMsg("请先选择 .md 或 .pdf 文件", false); return; }
+  const btn = document.getElementById("uploadBtn");
+  btn.disabled = true; setMsg("正在切片并向量化入库…");
+  try {
+    const fd = new FormData(); fd.append("file", f);
+    const j = await (await fetch("/api/admin/kb/upload", { method: "POST", body: fd })).json();
+    if (j.code !== 0) { setMsg(`[${j.code}] ${j.message}`, false); return; }
+    setMsg(j.message, true);
+    document.getElementById("file").value = "";
+    await loadList();
+  } finally { btn.disabled = false; }
+});
+
+/* 删除：确认 → 删文件+重建索引（即时下线该文档） */
+tbody.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button.danger");
+  if (!btn) return;
+  if (!confirm(`确认删除「${btn.dataset.name}」？删除后立即退出问答检索。`)) return;
+  const j = await (await fetch(`/api/admin/kb/${btn.dataset.id}`, { method: "DELETE" })).json();
+  if (j.code !== 0) { alert(`[${j.code}] ${j.message}`); return; }
+  await loadList();
+});
+
+loadList();
+{% endblock %}

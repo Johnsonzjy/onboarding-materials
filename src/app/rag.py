@@ -155,6 +155,13 @@ class KnowledgeBase:
         self.ready = True
         return len(self.chunks)
 
+    def chunk_count_by_source(self) -> dict[str, int]:
+        """按存储文件名统计各文档切片数（批2 回填 policy_docs.chunk_count 用）"""
+        counts: dict[str, int] = {}
+        for src in self.sources:
+            counts[src] = counts.get(src, 0) + 1
+        return counts
+
     def hybrid_search(self, question: str, top_k: int = None) -> list[dict]:
         """BM25 + 向量加权融合检索 TopK（★复用阶段1核心★）
 
@@ -214,13 +221,17 @@ def _mock_answer(question: str, hits: list[dict]) -> str:
             + "\n".join(lines))
 
 
-async def stream_llm(history: list[dict], question: str, hits: list[dict]) -> AsyncGenerator[str, None]:
+async def stream_llm(history: list[dict], question: str, hits: list[dict],
+                     system_prompt: str | None = None) -> AsyncGenerator[str, None]:
     """流式生成回答，逐段 yield 文本增量。
 
+    - system_prompt：批3 起由编排层实时读库传入（管理员改模板 → 下一次问答即生效）；
+      不传时使用本模块默认 SYSTEM_PROMPT 兜底。
     - mock：把伪回答切成 2~4 字小段输出，模拟打字机节奏
     - 真实供应商：OpenAI 兼容接口 stream=True，透传 delta
     """
     provider = CONFIG["llm_provider"]
+    sys_prompt = system_prompt or SYSTEM_PROMPT
 
     if provider == "mock":
         answer = _mock_answer(question, hits)
@@ -238,7 +249,7 @@ async def stream_llm(history: list[dict], question: str, hits: list[dict]) -> As
         api_key=CONFIG["llm_api_key"] or "EMPTY",
         base_url=CONFIG["llm_base_url"] or preset["base_url"],
     )
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    messages = [{"role": "system", "content": sys_prompt}]
     messages += [{"role": m["role"], "content": m["content"]}
                  for m in history if m["role"] in ("user", "assistant")]
     messages.append({"role": "user", "content": build_prompt(question, hits)})
