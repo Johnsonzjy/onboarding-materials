@@ -16,6 +16,10 @@ CODE_INTERNAL = 5000        # 系统内部错误
 CODE_UNAUTHORIZED = 1004    # 未登录 / 令牌无效或过期
 CODE_FORBIDDEN = 1005       # 已登录但权限不足（需管理员）
 CODE_AUTH_FAILED = 1006     # 登录失败（用户名或密码错误）
+CODE_INVOICE_FAILED = 4001  # 票据校验未通过
+CODE_NO_PREREQ = 4002       # 未完成前置校验（如未 validate_invoice 就 create_draft）
+CODE_AMOUNT_MISMATCH = 4003 # 报销金额与校验通过的发票金额不一致
+CODE_NOT_CONFIRMED = 4004   # 用户未确认草稿即请求提交
 
 
 def ok(data=None, message: str = "ok") -> dict:

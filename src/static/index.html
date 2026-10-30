@@ -46,6 +46,21 @@
     border-radius: 6px; padding: 6px 8px; margin-top: 6px;
   }
   .citations .cite-item b { color: #2f6bff; font-weight: 600; }
+  /* 工具调用过程卡片（阶段3：智能体 function calling 可视化） */
+  .tool-chip {
+    display: flex; align-items: center; gap: 7px; font-size: 12px; color: #3d4a63;
+    background: #f0f4ff; border: 1px solid #dfe6f5; border-radius: 8px;
+    padding: 5px 10px; margin: 0 0 6px; line-height: 1.4;
+  }
+  .tool-chip.ok   { background: #eefaf2; border-color: #cdeedd; }
+  .tool-chip.fail { background: #fdf1f1; border-color: #f3d3d3; }
+  .tool-chip .mini-spin {
+    width: 10px; height: 10px; flex: none;
+    border: 2px solid #c9d4ea; border-top-color: #2f6bff;
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  .tool-chip .t-name { font-weight: 600; color: #2f6bff; flex: none; }
+  .tool-chip .t-msg  { color: #5a6478; }
   /* ===== 状态条（正在检索制度…）===== */
   #statusBar {
     display: flex; align-items: center; gap: 8px; padding: 8px 12%;
@@ -186,6 +201,36 @@ function renderCitations(bubble, cites) {
   bubble.appendChild(box);
 }
 
+/* 渲染工具调用卡片：start 画转圈，done 变 ✓/✗ 并附结果摘要。
+   卡片插在正文之前（content span 上方），多次调用按 name 计数防覆盖。 */
+function renderToolCall(bubble, data) {
+  bubble._toolCount = bubble._toolCount || {};
+  if (data.status === "start") {
+    bubble._toolCount[data.name] = (bubble._toolCount[data.name] || 0) + 1;
+    const key = data.name + "#" + bubble._toolCount[data.name];
+    const chip = document.createElement("div");
+    chip.className = "tool-chip";
+    chip.innerHTML = `<span class="mini-spin"></span>` +
+      `<span class="t-name">🔧 ${data.label}</span>` +
+      `<span class="t-msg">${data.summary || ""}</span>`;
+    bubble._tools = bubble._tools || {};
+    bubble._tools[key] = chip;
+    bubble.insertBefore(chip, bubble.querySelector(".content"));   // 正文上方
+  } else if (data.status === "done") {
+    bubble._tools = bubble._tools || {};
+    const cnt = bubble._toolCount[data.name] || 1;
+    const chip = bubble._tools[data.name + "#" + cnt];
+    if (!chip) return;
+    const okFlag = data.result && data.result.ok;
+    chip.classList.add(okFlag ? "ok" : "fail");
+    chip.querySelector(".mini-spin").outerHTML =
+      `<span style="flex:none">${okFlag ? "✅" : "❌"}</span>`;
+    if (data.result && data.result.message) {
+      chip.querySelector(".t-msg").textContent = data.result.message;
+    }
+  }
+}
+
 function setStatus(text) {
   if (text) { statusText.textContent = text; statusBar.classList.remove("hidden"); }
   else statusBar.classList.add("hidden");
@@ -251,6 +296,9 @@ async function send() {
           setStatus(data.message);
         } else if (event === "citations") {           // 引用卡片（正文前先挂上）
           renderCitations(bubble, data);
+        } else if (event === "tool_call") {           // 工具调用过程（阶段3 智能体）
+          renderToolCall(bubble, data);
+          scrollBottom();
         } else if (event === "delta") {               // 正文增量 → 打字机
           if (!gotAnswer) { setStatus(null); gotAnswer = true; }
           contentEl.textContent += data.content;

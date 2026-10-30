@@ -176,13 +176,12 @@ async def admin_audit(request: Request):
 
 @app.post("/chat")
 async def chat(req: ChatRequest, user: dict = Depends(security.get_current_user)):
-    """员工问答入口（SSE 流式）。登录即可问答（员工/管理员都允许）。"""
-    _ = user   # 依赖已校验登录态；角色不限制
+    """员工问答入口（SSE 流式，阶段3 起为智能体编排）。登录即可问答。"""
     if not KB.ready:
         raise ApiError(1003, "知识库未初始化或为空，请联系管理员检查制度文档", 503)
     if req.session_id and db.get_session(req.session_id) is None:
         raise ApiError(1002, "会话不存在，请开启新会话", 404)
-    return build_chat_response(req)
+    return build_chat_response(req, user)
 
 
 @app.get("/sessions/{session_id}/history")
@@ -199,6 +198,7 @@ async def history(session_id: str, user: dict = Depends(security.get_current_use
             "created_at": m["created_at"],
         }
         for m in db.get_all_messages(session_id)
+        if m["role"] in ("user", "assistant")   # role=tool 的中间过程不在聊天页回放
     ]
     return ok({"session_id": session_id, "messages": messages})
 
@@ -206,11 +206,13 @@ async def history(session_id: str, user: dict = Depends(security.get_current_use
 @app.get("/health")
 async def health():
     """健康检查：无需登录（存活探测）"""
+    from app.tools import INVOICE_API_PROVIDER
     return ok({
         "status": "ok",
         "knowledge_ready": KB.ready,
         "chunks": len(KB.chunks),
         "llm_provider": CONFIG["llm_provider"],
+        "invoice_api": INVOICE_API_PROVIDER or "rules-only（未接查验API，仅规则校验）",
     })
 
 
@@ -240,6 +242,11 @@ def _rebuild_kb_and_sync() -> int:
     n = KB.build(KB_DIR)
     db.sync_doc_chunk_counts(KB.chunk_count_by_source())
     return n
+
+
+def rebuild_kb() -> int:
+    """供智能体层调用（admin_knowledge_ops 删除文档后重建索引）"""
+    return _rebuild_kb_and_sync()
 
 
 @app.post("/api/admin/kb/upload")

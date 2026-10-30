@@ -76,6 +76,12 @@ def init_db() -> None:
     if "password_hash" not in cols:
         cur.execute("ALTER TABLE users ADD COLUMN password_hash TEXT")
 
+    # ---- 旧库迁移：sessions 补 tool_state 列（阶段3 工具状态机：JSON 存
+    #      {validated, draft_id, user_confirmed}，L2 硬约束的数据来源）----
+    cols = {r["name"] for r in cur.execute("PRAGMA table_info(sessions)")}
+    if "tool_state" not in cols:
+        cur.execute("ALTER TABLE sessions ADD COLUMN tool_state TEXT")
+
     # ---- 会话表 ----
     cur.execute("""
         CREATE TABLE IF NOT EXISTS sessions (
@@ -128,12 +134,32 @@ def init_db() -> None:
         )
     """)
 
+    # ---- 报销单草稿表（阶段3：智能体 create_draft / submit_reimbursement 落数）----
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS reimbursement_drafts (
+            id          TEXT PRIMARY KEY,   -- draft_id
+            session_id  TEXT,               -- 由哪次会话产生
+            user_id     TEXT,               -- 归属员工
+            type        TEXT,               -- travel / entertainment / material / other
+            status      TEXT,               -- draft（草稿）/ submitted（已提交）
+            amount      REAL,               -- 金额（元）
+            currency    TEXT,               -- 币种，默认 CNY
+            reason      TEXT,               -- 报销事由
+            items       TEXT,               -- 明细行 JSON
+            summary     TEXT,               -- Agent 生成的单据摘要
+            created_at  TEXT,
+            submitted_at TEXT               -- 提交时间（草稿态为 NULL）
+        )
+    """)
+
     # ---- 种子：内置员工/管理员账号（存在则跳过；密码只存 pbkdf2 哈希）----
     for uid, username, name, role, password in SEED_ACCOUNTS:
         cur.execute("SELECT 1 FROM users WHERE id = ?", (uid,))
         if cur.fetchone() is None:
             cur.execute(
-                "INSERT INTO users VALUES (?,?,?,?,?,?,?,?,?,?)",
+                # 显式列名插入（users 表后续加列时不受影响）
+                "INSERT INTO users (id, employee_no, name, role, org_id, region_code, "
+                "status, created_at, username, password_hash) VALUES (?,?,?,?,?,?,?,?,?,?)",
                 (uid, username.upper(), name, role, "demo-org", "BJ",
                  "active", _now(), username, hash_password(password)),
             )
@@ -142,7 +168,8 @@ def init_db() -> None:
     cur.execute("SELECT 1 FROM prompt_templates LIMIT 1")
     if cur.fetchone() is None:
         cur.execute(
-            "INSERT INTO prompt_templates VALUES (?,?,?,?,?,?)",   # 6 列
+            "INSERT INTO prompt_templates (id, content, version, is_active, "
+            "updated_by, updated_at) VALUES (?,?,?,?,?,?)",
             (_new_id(), DEFAULT_PROMPT, 1, 1, "system", _now()),
         )
     _conn.commit()
@@ -157,7 +184,9 @@ def create_session(user_id: str, title: str, channel: str = "web") -> str:
     sid = _new_id()
     with _lock:
         _conn.execute(
-            "INSERT INTO sessions VALUES (?,?,?,?,?,?,?)",   # 7 列
+            # 显式列名插入：新增列（如 tool_state）有默认值时不受影响
+            "INSERT INTO sessions (id, user_id, title, channel, status, "
+            "created_at, last_active_at) VALUES (?,?,?,?,?,?,?)",
             (sid, user_id, title[:20], channel, "active", _now(), _now()),
         )
         _conn.commit()
@@ -311,7 +340,8 @@ def add_prompt_version(content: str, updated_by: str) -> dict:
         pid = _new_id()
         _conn.execute("UPDATE prompt_templates SET is_active = 0 WHERE is_active = 1")
         _conn.execute(
-            "INSERT INTO prompt_templates VALUES (?,?,?,?,?,?)",   # 6 列
+            "INSERT INTO prompt_templates (id, content, version, is_active, "
+            "updated_by, updated_at) VALUES (?,?,?,?,?,?)",
             (pid, content, max_v + 1, 1, updated_by, _now()),
         )
         _conn.commit()
@@ -419,5 +449,79 @@ def list_employees() -> list[dict]:
     rows = _conn.execute(
         "SELECT DISTINCT u.employee_no, u.name FROM users u "
         "JOIN sessions s ON s.user_id = u.id"
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+# =====================================================================
+# 工具状态机与报销单草稿（阶段3：智能体）
+# =====================================================================
+
+def get_tool_state(session_id: str) -> dict:
+    """读取会话工具状态（L2 硬约束依据）：{validated, draft_id, user_confirmed}"""
+    row = _conn.execute(
+        "SELECT tool_state FROM sessions WHERE id = ?", (session_id,)
+    ).fetchone()
+    if row is None or not row["tool_state"]:
+        return {}
+    try:
+        return json.loads(row["tool_state"])
+    except json.JSONDecodeError:
+        return {}
+
+
+def set_tool_state(session_id: str, state: dict) -> None:
+    """写入会话工具状态（整包覆盖，调用方负责先 get 再改）"""
+    with _lock:
+        _conn.execute(
+            "UPDATE sessions SET tool_state = ? WHERE id = ?",
+            (json.dumps(state, ensure_ascii=False), session_id),
+        )
+        _conn.commit()
+
+
+def insert_draft(session_id: str, user_id: str, dtype: str, amount: float,
+                 reason: str, items: list, summary: str) -> dict:
+    """新建报销单草稿（create_draft 工具落库），返回含 id 的完整记录"""
+    did = _new_id()
+    with _lock:
+        _conn.execute(
+            "INSERT INTO reimbursement_drafts (id, session_id, user_id, type, status, "
+            "amount, currency, reason, items, summary, created_at, submitted_at) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (did, session_id, user_id, dtype, "draft", amount, "CNY",
+             reason, json.dumps(items, ensure_ascii=False), summary,
+             _now(), None),
+        )
+        _conn.commit()
+    return {"id": did, "amount": amount, "summary": summary}
+
+
+def get_draft(draft_id: str) -> dict | None:
+    """按 id 查报销单"""
+    row = _conn.execute(
+        "SELECT * FROM reimbursement_drafts WHERE id = ?", (draft_id,)
+    ).fetchone()
+    return dict(row) if row else None
+
+
+def set_draft_submitted(draft_id: str) -> None:
+    """草稿 → 已提交（submit_reimbursement 工具落库）"""
+    with _lock:
+        _conn.execute(
+            "UPDATE reimbursement_drafts SET status = 'submitted', submitted_at = ? "
+            "WHERE id = ? AND status = 'draft'",
+            (_now(), draft_id),
+        )
+        _conn.commit()
+
+
+def list_drafts_by_user(user_id: str, limit: int = 20) -> list[dict]:
+    """某员工的报销单记录（list_my_records 工具用，时间倒序）"""
+    rows = _conn.execute(
+        "SELECT id, type, status, amount, currency, reason, summary, "
+        "created_at, submitted_at FROM reimbursement_drafts "
+        "WHERE user_id = ? ORDER BY created_at DESC LIMIT ?",
+        (user_id, limit),
     ).fetchall()
     return [dict(r) for r in rows]
