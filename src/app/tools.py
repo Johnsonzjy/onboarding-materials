@@ -293,13 +293,15 @@ def execute_tool(name: str, args: dict, session_id: str, user: dict) -> dict:
     # ---------------- ② validate_invoice：无前置，但结果写状态 ----------------
     if name == "validate_invoice":
         result = validate_invoice(args)
-        # 校验结果落会话状态（create_draft 的前置依据）
+        # 校验结果落会话状态（create_draft 的前置依据）；
+        # 新一轮校验使旧的"待确认草稿"失效（票据变了，旧确认作废）
         db.set_tool_state(session_id, {
             **state,
             "validated": {"passed": result["data"]["passed"],
                           "amount": result["data"]["amount"],
                           "category": result["data"]["category"]},
             "user_confirmed": False,       # 新一轮报销，用户确认态复位
+            "pending_create": None,        # 清掉旧的中断草稿
         })
         return result
 

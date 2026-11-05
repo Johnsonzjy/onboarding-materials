@@ -61,6 +61,21 @@
   }
   .tool-chip .t-name { font-weight: 600; color: #2f6bff; flex: none; }
   .tool-chip .t-msg  { color: #5a6478; }
+  /* HITL 确认卡片（阶段4：create_draft 强制中断 → 员工确认） */
+  .confirm-card {
+    background: #fffaf0; border: 1px solid #f0dfb8; border-radius: 10px;
+    padding: 10px 12px; margin: 0 0 8px; font-size: 13px; line-height: 1.6;
+  }
+  .confirm-card .c-title { font-weight: 600; color: #9a6b00; margin-bottom: 4px; }
+  .confirm-card .c-row { color: #4a5568; }
+  .confirm-card .c-row b { color: #222; }
+  .confirm-card .c-actions { margin-top: 8px; display: flex; gap: 8px; }
+  .confirm-card button {
+    font-size: 13px; padding: 5px 16px; border-radius: 8px; cursor: pointer; border: 1px solid #d6dbe4;
+  }
+  .confirm-card .btn-ok  { background: #2f6bff; color: #fff; border-color: #2f6bff; }
+  .confirm-card .btn-no  { background: #fff; color: #5a6478; }
+  .confirm-card button:disabled { opacity: .5; cursor: not-allowed; }
   /* ===== 状态条（正在检索制度…）===== */
   #statusBar {
     display: flex; align-items: center; gap: 8px; padding: 8px 12%;
@@ -231,14 +246,43 @@ function renderToolCall(bubble, data) {
   }
 }
 
+/* 渲染 HITL 确认卡片：create_draft 强制中断后展示草稿要素，
+   确认/取消按钮直接以用户身份发消息（走同一 SSE 流程，日志可审计）。 */
+function renderConfirmCard(bubble, data) {
+  const card = document.createElement("div");
+  card.className = "confirm-card";
+  card.innerHTML =
+    `<div class="c-title">⏸ 已暂停：${data.hint || "请确认草稿内容"}</div>` +
+    `<div class="c-row">类型：<b>${data.type_label || "其他"}</b>　金额：<b>¥${data.amount}</b></div>` +
+    `<div class="c-row">事由：<b>${data.reason || "-"}</b></div>` +
+    `<div class="c-actions">` +
+    `<button class="btn-ok">✓ 确认创建</button>` +
+    `<button class="btn-no">✕ 取消</button></div>`;
+  const okBtn = card.querySelector(".btn-ok");
+  const noBtn = card.querySelector(".btn-no");
+  okBtn.addEventListener("click", () => {
+    okBtn.disabled = noBtn.disabled = true;
+    okBtn.textContent = "已确认";
+    send("确认创建报销草稿");          // 复用同一发送链路（进入 Harness 恢复逻辑）
+  });
+  noBtn.addEventListener("click", () => {
+    okBtn.disabled = noBtn.disabled = true;
+    noBtn.textContent = "已取消";
+    send("取消创建报销草稿");
+  });
+  bubble.insertBefore(card, bubble.querySelector(".content"));
+  scrollBottom();
+}
+
 function setStatus(text) {
   if (text) { statusText.textContent = text; statusBar.classList.remove("hidden"); }
   else statusBar.classList.add("hidden");
 }
 
 /* ================= 发送与 SSE 解析 ================= */
-async function send() {
-  const question = input.value.trim();
+async function send(textArg) {
+  const question = (typeof textArg === "string" && textArg.trim())
+    ? textArg.trim() : input.value.trim();
   if (!question || streaming) return;
   streaming = true; sendBtn.disabled = true;
 
@@ -299,6 +343,8 @@ async function send() {
         } else if (event === "tool_call") {           // 工具调用过程（阶段3 智能体）
           renderToolCall(bubble, data);
           scrollBottom();
+        } else if (event === "pending_confirm") {     // HITL 中断：草稿待确认（阶段4）
+          renderConfirmCard(bubble, data);
         } else if (event === "delta") {               // 正文增量 → 打字机
           if (!gotAnswer) { setStatus(null); gotAnswer = true; }
           contentEl.textContent += data.content;

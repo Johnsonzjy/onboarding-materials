@@ -152,6 +152,21 @@ def init_db() -> None:
         )
     """)
 
+    # ---- 智能体决策轮次日志表（阶段4/Harness：每轮决策留痕，供阶段5分析）----
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS agent_round_logs (
+            id             TEXT PRIMARY KEY,
+            session_id     TEXT,          -- 所属会话
+            round_no       INTEGER,       -- 决策轮次（会话内从 1 递增）
+            tool_name      TEXT,          -- 工具名；'final_answer'=模型直接作答；'interrupt'=create_draft 中断
+            params         TEXT,          -- 工具入参 JSON（中断时为草稿要素）
+            duration_ms    INTEGER,       -- 该轮耗时（毫秒，含工具执行）
+            result_summary TEXT,          -- 结果摘要（截断 200 字）
+            ok             INTEGER,       -- 1=成功 0=失败
+            created_at     TEXT
+        )
+    """)
+
     # ---- 种子：内置员工/管理员账号（存在则跳过；密码只存 pbkdf2 哈希）----
     for uid, username, name, role, password in SEED_ACCOUNTS:
         cur.execute("SELECT 1 FROM users WHERE id = ?", (uid,))
@@ -525,3 +540,42 @@ def list_drafts_by_user(user_id: str, limit: int = 20) -> list[dict]:
         (user_id, limit),
     ).fetchall()
     return [dict(r) for r in rows]
+
+
+# =====================================================================
+# 智能体决策轮次日志（阶段4/Harness：供阶段5分析）
+# =====================================================================
+
+def log_round(session_id: str, round_no: int, tool_name: str, params: dict,
+              duration_ms: int, result_summary: str, ok: bool) -> str:
+    """写一条决策轮次日志（每轮 模型决策→工具执行 后调用）"""
+    lid = _new_id()
+    with _lock:
+        _conn.execute(
+            "INSERT INTO agent_round_logs (id, session_id, round_no, tool_name, "
+            "params, duration_ms, result_summary, ok, created_at) "
+            "VALUES (?,?,?,?,?,?,?,?,?)",
+            (lid, session_id, round_no, tool_name,
+             json.dumps(params, ensure_ascii=False)[:2000],
+             duration_ms, (result_summary or "")[:200],
+             1 if ok else 0, _now()),
+        )
+        _conn.commit()
+    return lid
+
+
+def list_round_logs(session_id: str, limit: int = 50) -> list[dict]:
+    """某会话的轮次日志（时间正序，供审计页/阶段5分析读取）"""
+    rows = _conn.execute(
+        "SELECT round_no, tool_name, params, duration_ms, result_summary, ok, "
+        "created_at FROM agent_round_logs WHERE session_id = ? "
+        "ORDER BY created_at LIMIT ?",
+        (session_id, limit),
+    ).fetchall()
+    out = []
+    for r in rows:
+        d = dict(r)
+        d["params"] = json.loads(d["params"]) if d["params"] else None
+        d["ok"] = bool(d["ok"])
+        out.append(d)
+    return out

@@ -368,6 +368,16 @@ async def audit_stats(user: dict = Depends(security.get_current_user)):
                "messages": db.count_messages()})
 
 
+@app.get("/api/admin/rounds")
+async def round_logs(request: Request, user: dict = Depends(security.get_current_user)):
+    """智能体决策轮次日志（阶段4/Harness）：按会话查询每轮 工具/参数/耗时/结果"""
+    _admin(user)
+    sid = request.query_params.get("session_id")
+    if not sid:
+        raise ApiError(1001, "缺少 session_id 参数", 400)
+    return ok(db.list_round_logs(sid))
+
+
 # =====================================================================
 # 全局异常处理：所有错误统一为 {code, message, data} 中文结构
 # =====================================================================
