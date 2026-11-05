@@ -18,10 +18,10 @@ from typing import AsyncGenerator
 
 from fastapi.responses import StreamingResponse
 
-from app import db
-from app.audit import scan_violation
-from app.agent import run_agent
-from app.schemas import CODE_INTERNAL, CODE_LLM, ChatRequest
+from onboarding_assistant.core import db
+from onboarding_assistant.core.audit import scan_violation
+from onboarding_assistant.core.agent import run_agent
+from onboarding_assistant.core.schemas import CODE_INTERNAL, CODE_LLM, ChatRequest
 
 
 def _sse(event: str, data) -> str:

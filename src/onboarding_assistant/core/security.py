@@ -16,7 +16,7 @@ import time
 
 from fastapi import Request
 
-from app.schemas import ApiError
+from onboarding_assistant.core.schemas import ApiError
 
 # 签名密钥：默认开发密钥，生产环境必须用环境变量覆盖
 JWT_SECRET = os.getenv("JWT_SECRET", "onboarding-dev-secret-change-me")

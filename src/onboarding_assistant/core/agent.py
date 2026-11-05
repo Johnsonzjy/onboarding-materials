@@ -27,9 +27,9 @@ import re
 import time
 from typing import AsyncGenerator
 
-from app import db, tools
-from app.rag import CONFIG, KB, stream_llm
-from app.rag import PROVIDER_PRESETS
+from onboarding_assistant.core import db, tools
+from onboarding_assistant.core.rag import CONFIG, KB, stream_llm
+from onboarding_assistant.core.rag import PROVIDER_PRESETS
 
 # 循环轮次上限（需求：最多 5 轮），防模型反复调工具不收敛
 MAX_ROUNDS = 5
@@ -97,7 +97,7 @@ def _run_tool(session_id: str, user: dict, name: str, args: dict) -> dict:
     if (name == "admin_knowledge_ops" and result.get("ok")
             and (result.get("data") or {}).get("need_rebuild")):
         from pathlib import Path
-        from app.main import KB_DIR, rebuild_kb
+        from onboarding_assistant.main import KB_DIR, rebuild_kb
         path = KB_DIR / result["data"]["deleted_filename"]
         if path.exists():
             path.unlink()

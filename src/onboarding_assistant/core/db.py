@@ -13,10 +13,12 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from app.security import hash_password
+from onboarding_assistant.core.security import hash_password
 
-# 数据库文件位置：src/chat.db（基于文件路径定位，与启动目录无关）
-DB_PATH = Path(__file__).resolve().parent.parent / "chat.db"
+# 数据库文件位置：仓库根/data/chat.db（基于文件路径定位，与启动目录无关）
+# 本文件位于 src/onboarding_assistant/core/db.py：parents[3]=仓库根
+# data/ 已加入 .gitignore（数据库属运行时产物，不入库）
+DB_PATH = Path(__file__).resolve().parents[3] / "data" / "chat.db"
 
 # 内置账号（批1：员工用 JWT 登录聊天，管理员进后台）
 DEMO_USER_ID = "demo-employee"     # 员工账号 id（沿用，历史会话归属不受影响）
@@ -76,12 +78,6 @@ def init_db() -> None:
     if "password_hash" not in cols:
         cur.execute("ALTER TABLE users ADD COLUMN password_hash TEXT")
 
-    # ---- 旧库迁移：sessions 补 tool_state 列（阶段3 工具状态机：JSON 存
-    #      {validated, draft_id, user_confirmed}，L2 硬约束的数据来源）----
-    cols = {r["name"] for r in cur.execute("PRAGMA table_info(sessions)")}
-    if "tool_state" not in cols:
-        cur.execute("ALTER TABLE sessions ADD COLUMN tool_state TEXT")
-
     # ---- 会话表 ----
     cur.execute("""
         CREATE TABLE IF NOT EXISTS sessions (
@@ -94,6 +90,13 @@ def init_db() -> None:
             last_active_at TEXT
         )
     """)
+
+    # ---- 旧库迁移：sessions 补 tool_state 列（阶段3 工具状态机：JSON 存
+    #      {validated, draft_id, user_confirmed}，L2 硬约束的数据来源）
+    #      注意：必须放在建表之后（全新库直接 ALTER 会报 no such table）----
+    cols = {r["name"] for r in cur.execute("PRAGMA table_info(sessions)")}
+    if "tool_state" not in cols:
+        cur.execute("ALTER TABLE sessions ADD COLUMN tool_state TEXT")
 
     # ---- 消息表 ----
     cur.execute("""

@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      # 先装测试最小依赖；全量依赖较重（faiss 等），CI 以快速反馈为主
+      - name: Install test dependencies
+        run: pip install pytest fastapi pydantic jieba rank_bm25 numpy faiss-cpu
+
+      - name: Run unit tests (mock mode, no API keys needed)
+        env:
+          PYTHONPATH: src
+        run: python -m pytest tests/test_core.py -v
+
+      - name: Syntax check all modules
+        run: python -m compileall -q src/onboarding_assistant

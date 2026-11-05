@@ -11,7 +11,7 @@ FastAPI 入口：路由注册 + 生命周期（建表/构建知识库）+ 全局
     /admin/audit        对话审计（批4 填充）
 
 启动方式（在 src 目录下执行）：
-    uvicorn app.main:app --host 127.0.0.1 --port 8765
+    uvicorn onboarding_assistant.main:app --host 127.0.0.1 --port 8765
 """
 import io
 import re
@@ -25,17 +25,20 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app import db, security
-from app.chat import build_chat_response
-from app.rag import CONFIG, KB
-from app.schemas import (ApiError, ChatRequest, CODE_INTERNAL, CODE_PARAM,
+from onboarding_assistant.core import db, security
+from onboarding_assistant.core.chat import build_chat_response
+from onboarding_assistant.core.rag import CONFIG, KB
+from onboarding_assistant.core.schemas import (ApiError, ChatRequest, CODE_INTERNAL, CODE_PARAM,
                          LoginRequest, fail, ok, public_body)
 
 # 路径：基于文件定位，与启动目录无关
-SRC_DIR = Path(__file__).resolve().parent.parent        # src/
-KB_DIR = SRC_DIR / "data" / "knowledge"                 # 制度 md 目录
-STATIC_DIR = SRC_DIR / "static"                         # 前端静态目录
-TEMPLATE_DIR = SRC_DIR / "templates"                    # 服务端渲染模板
+# 本文件位于 src/onboarding_assistant/main.py：
+#   parents[0]=onboarding_assistant  parents[1]=src  parents[2]=仓库根
+ROOT_DIR = Path(__file__).resolve().parents[2]          # 仓库根
+PKG_DIR = Path(__file__).resolve().parent               # onboarding_assistant/
+KB_DIR = ROOT_DIR / "data" / "knowledge"                # 制度 md 目录（仓库根/data/knowledge）
+STATIC_DIR = PKG_DIR / "static"                         # 前端静态目录（随包）
+TEMPLATE_DIR = PKG_DIR / "templates"                    # 服务端渲染模板（随包）
 
 templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
 
@@ -206,7 +209,7 @@ async def history(session_id: str, user: dict = Depends(security.get_current_use
 @app.get("/health")
 async def health():
     """健康检查：无需登录（存活探测）"""
-    from app.tools import INVOICE_API_PROVIDER
+    from onboarding_assistant.core.tools import INVOICE_API_PROVIDER
     return ok({
         "status": "ok",
         "knowledge_ready": KB.ready,

@@ -1,0 +1,43 @@
+# =====================================================================
+# 非机密默认配置（config/default.yaml）
+#
+# 说明：本文件是**默认参数的权威记录**，方便运维与评审查阅。
+#       当前版本代码从环境变量读取配置（见 .env.example），
+#       yaml 中的值即环境变量未设置时的缺省行为；两者需保持一致。
+#       机密项（各类 API Key、JWT_SECRET）一律走环境变量，严禁写入本文件。
+# =====================================================================
+
+app:
+  name: onboarding-assistant        # 服务名
+  host: 0.0.0.0
+  port: 8765
+
+llm:
+  provider: mock                    # openai | deepseek | qwen | glm | mock（离线演示）
+  timeout_seconds: 60               # 单次生成超时
+
+embedding:
+  provider: mock                    # 未配置 Key 时降级本地哈希向量（仅跑通流程）
+
+retrieval:
+  chunk_size: 500                   # 制度文档切片字数
+  chunk_overlap: 50                 # 切片重叠，防语义截断
+  top_k: 3                          # 混合检索召回条数
+  vector_weight: 0.5                # 混合融合权重（向量 0.5 / BM25 0.5）
+
+invoice_check:                      # 发票查验
+  provider: ""                      # 空 = 离线规则校验
+  invoice_max_age_days: 30          # 开票超期上限
+  on_api_failure: fail-closed       # 查验失败不放行
+
+agent:
+  max_rounds: 5                     # Harness 执行循环轮次上限
+  require_human_confirm: true       # create_draft 前强制中断等确认（不可关闭）
+
+limits:
+  question_max_chars: 500           # 单问最大长度
+  history_rounds: 6                 # 上下文携带历史轮数
+
+seeds:                              # 演示账号（生产必须修改/禁用，见上线检查清单 2.6）
+  admin: admin
+  employee: demo001

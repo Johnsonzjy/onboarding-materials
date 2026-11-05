@@ -21,8 +21,8 @@ from datetime import date, datetime, timedelta
 from urllib import request as _urlrequest
 from urllib.error import URLError
 
-from app import db
-from app.rag import KB
+from onboarding_assistant.core import db
+from onboarding_assistant.core.rag import KB
 
 # =====================================================================
 # 发票查验 API 配置（环境变量可覆盖；默认不接 API，仅规则校验）

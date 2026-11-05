@@ -1,4 +1,17 @@
+# 运行时产物（数据库 / 日志 / 缓存）——一律不入库
 chat.db
+data/chat.db
 server.log
 __pycache__/
 *.pyc
+.pytest_cache/
+
+# 环境变量与密钥（LLM Key、发票查验 Key 等）
+.env
+.env.*
+!.env.example
+
+# IDE / 系统
+.idea/
+.vscode/
+.DS_Store
