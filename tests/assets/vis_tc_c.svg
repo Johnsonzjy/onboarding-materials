@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="860" viewBox="0 0 1500 860" font-family="SimHei">
+  <rect width="1500" height="860" fill="#ffffff"/>
+  <rect x="0" y="0" width="1500" height="90" fill="#4c3380"/>
+  <text x="750" y="55" text-anchor="middle" font-size="30" font-weight="bold" fill="#ffffff">TC-C 权限场景 · 角色资源访问矩阵（20 条用例，100% 隔离）</text>
+
+  <!-- 矩阵 -->
+  <g>
+    <rect x="60" y="130" width="200" height="70" fill="#4c3380"/>
+    <text x="160" y="158" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">角色 \ 资源</text>
+    <text x="160" y="184" text-anchor="middle" font-size="12" fill="#d9ccef">（行=角色，列=资源）</text>
+
+    <rect x="260" y="130" width="190" height="70" fill="#5d4391"/>
+    <text x="355" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">聊天问答 API</text>
+    <text x="355" y="184" text-anchor="middle" font-size="12" fill="#d9ccef">/api/chat</text>
+
+    <rect x="450" y="130" width="190" height="70" fill="#5d4391"/>
+    <text x="545" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">清单 / 材料</text>
+    <text x="545" y="184" text-anchor="middle" font-size="12" fill="#d9ccef">本人数据</text>
+
+    <rect x="640" y="130" width="190" height="70" fill="#5d4391"/>
+    <text x="735" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">管理后台页面</text>
+    <text x="735" y="184" text-anchor="middle" font-size="12" fill="#d9ccef">/admin/*</text>
+
+    <rect x="830" y="130" width="190" height="70" fill="#5d4391"/>
+    <text x="925" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">管理 API</text>
+    <text x="925" y="184" text-anchor="middle" font-size="12" fill="#d9ccef">/api/admin/*</text>
+
+    <rect x="1020" y="130" width="190" height="70" fill="#5d4391"/>
+    <text x="1115" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">审计导出</text>
+    <text x="1115" y="184" text-anchor="middle" font-size="12" fill="#d9ccef">四要素只读</text>
+
+    <rect x="1210" y="130" width="230" height="70" fill="#5d4391"/>
+    <text x="1325" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">他租户数据</text>
+    <text x="1325" y="184" text-anchor="middle" font-size="12" fill="#d9ccef">tenant-b 视角</text>
+  </g>
+
+  <!-- 行：未登录 -->
+  <g>
+    <rect x="60" y="200" width="200" height="70" fill="#efe7f8" stroke="#b39ddb"/>
+    <text x="160" y="230" text-anchor="middle" font-size="15" font-weight="bold" fill="#4c3380">未登录</text>
+    <text x="160" y="255" text-anchor="middle" font-size="12" fill="#6b5a95">C-01~03</text>
+    <rect x="260" y="200" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="355" y="243" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 1004</text>
+    <rect x="450" y="200" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="545" y="243" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 1004</text>
+    <rect x="640" y="200" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="735" y="243" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 302→/login</text>
+    <rect x="830" y="200" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="925" y="243" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 1004</text>
+    <rect x="1020" y="200" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="1115" y="243" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 1004</text>
+    <rect x="1210" y="200" width="230" height="70" fill="#fdeaea" stroke="#d64545"/><text x="1325" y="243" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 1004</text>
+  </g>
+
+  <!-- 行：employee -->
+  <g>
+    <rect x="60" y="270" width="200" height="70" fill="#efe7f8" stroke="#b39ddb"/>
+    <text x="160" y="300" text-anchor="middle" font-size="15" font-weight="bold" fill="#4c3380">employee</text>
+    <text x="160" y="325" text-anchor="middle" font-size="12" fill="#6b5a95">C-07~10</text>
+    <rect x="260" y="270" width="190" height="70" fill="#e6f4ea" stroke="#1e6b3a"/><text x="355" y="313" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e6b3a">√ 允许</text>
+    <rect x="450" y="270" width="190" height="70" fill="#e6f4ea" stroke="#1e6b3a"/><text x="545" y="313" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e6b3a">√ 仅本人</text>
+    <rect x="640" y="270" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="735" y="313" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 302→/login</text>
+    <rect x="830" y="270" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="925" y="313" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 1005</text>
+    <rect x="1020" y="270" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="1115" y="313" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 1005</text>
+    <rect x="1210" y="270" width="230" height="70" fill="#fdeaea" stroke="#d64545"/><text x="1325" y="313" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 空结果</text>
+  </g>
+
+  <!-- 行：admin -->
+  <g>
+    <rect x="60" y="340" width="200" height="70" fill="#efe7f8" stroke="#b39ddb"/>
+    <text x="160" y="370" text-anchor="middle" font-size="15" font-weight="bold" fill="#4c3380">admin</text>
+    <text x="160" y="395" text-anchor="middle" font-size="12" fill="#6b5a95">C-11~13</text>
+    <rect x="260" y="340" width="190" height="70" fill="#e6f4ea" stroke="#1e6b3a"/><text x="355" y="383" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e6b3a">√ 允许</text>
+    <rect x="450" y="340" width="190" height="70" fill="#e6f4ea" stroke="#1e6b3a"/><text x="545" y="383" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e6b3a">√ 允许</text>
+    <rect x="640" y="340" width="190" height="70" fill="#e6f4ea" stroke="#1e6b3a"/><text x="735" y="383" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e6b3a">√ 允许</text>
+    <rect x="830" y="340" width="190" height="70" fill="#e6f4ea" stroke="#1e6b3a"/><text x="925" y="383" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e6b3a">√ 允许</text>
+    <rect x="1020" y="340" width="190" height="70" fill="#e6f4ea" stroke="#1e6b3a"/><text x="1115" y="383" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e6b3a">√ 允许</text>
+    <rect x="1210" y="340" width="230" height="70" fill="#fff3cd" stroke="#e08c00"/><text x="1325" y="383" text-anchor="middle" font-size="14" font-weight="bold" fill="#9c6f1b">仅本租户</text>
+  </g>
+
+  <!-- 行：tenant-b -->
+  <g>
+    <rect x="60" y="410" width="200" height="70" fill="#efe7f8" stroke="#b39ddb"/>
+    <text x="160" y="440" text-anchor="middle" font-size="15" font-weight="bold" fill="#4c3380">tenant-b 账号</text>
+    <text x="160" y="465" text-anchor="middle" font-size="12" fill="#6b5a95">C-14~17</text>
+    <rect x="260" y="410" width="190" height="70" fill="#e6f4ea" stroke="#1e6b3a"/><text x="355" y="453" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e6b3a">√ 本租户</text>
+    <rect x="450" y="410" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="545" y="453" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 空/1005</text>
+    <rect x="640" y="410" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="735" y="453" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 1005</text>
+    <rect x="830" y="410" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="925" y="453" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 1005</text>
+    <rect x="1020" y="410" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="1115" y="453" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 空/1005</text>
+    <rect x="1210" y="410" width="230" height="70" fill="#e6f4ea" stroke="#1e6b3a"/><text x="1325" y="453" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e6b3a">√ 仅 tenant-b</text>
+  </g>
+
+  <!-- 行：停用账号 -->
+  <g>
+    <rect x="60" y="480" width="200" height="70" fill="#efe7f8" stroke="#b39ddb"/>
+    <text x="160" y="510" text-anchor="middle" font-size="15" font-weight="bold" fill="#4c3380">停用账号</text>
+    <text x="160" y="535" text-anchor="middle" font-size="12" fill="#6b5a95">C-18</text>
+    <rect x="260" y="480" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="355" y="523" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 拒绝</text>
+    <rect x="450" y="480" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="545" y="523" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 拒绝</text>
+    <rect x="640" y="480" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="735" y="523" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 拒绝</text>
+    <rect x="830" y="480" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="925" y="523" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 拒绝</text>
+    <rect x="1020" y="480" width="190" height="70" fill="#fdeaea" stroke="#d64545"/><text x="1115" y="523" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 拒绝</text>
+    <rect x="1210" y="480" width="230" height="70" fill="#fdeaea" stroke="#d64545"/><text x="1325" y="523" text-anchor="middle" font-size="17" font-weight="bold" fill="#c53030">× 拒绝</text>
+  </g>
+
+  <!-- 底部专项 -->
+  <rect x="60" y="590" width="660" height="220" rx="10" fill="#f7f4fd" stroke="#7c5cbf" stroke-width="2"/>
+  <text x="390" y="630" text-anchor="middle" font-size="19" font-weight="bold" fill="#4c3380">会话与时序专项（C-04~06 / C-19 / C-20）</text>
+  <text x="90" y="668" font-size="15" fill="#5d4391">token 过期边界 ±60s 正确判定 · 签名/格式错误返回 1004</text>
+  <text x="90" y="702" font-size="15" fill="#5d4391">admin 降级 employee：旧 token 下管理接口立即 1005</text>
+  <text x="90" y="736" font-size="15" fill="#5d4391">Cookie 与 Bearer 双通道鉴权结论 100% 一致</text>
+  <text x="90" y="770" font-size="15" fill="#5d4391">登出后旧 Cookie 立即失效，访问返回 1004</text>
+
+  <rect x="760" y="590" width="680" height="220" rx="10" fill="#fdecea" stroke="#c53030" stroke-width="2.5"/>
+  <text x="1100" y="630" text-anchor="middle" font-size="19" font-weight="bold" fill="#a52828">量化出口</text>
+  <text x="790" y="668" font-size="15" fill="#8a3232">20 例 100% 通过 · 跨租户数据 0 泄漏</text>
+  <text x="790" y="702" font-size="15" fill="#8a3232">每次拒绝均落审计日志（谁在何时访问了什么被拒）</text>
+  <text x="790" y="736" font-size="15" fill="#8a3232">鉴权接口响应 P95 &lt; 200ms（中间件开销可忽略）</text>
+  <text x="790" y="770" font-size="15" fill="#8a3232">越权尝试全部可在审计页按 user_id 检索还原</text>
+</svg>

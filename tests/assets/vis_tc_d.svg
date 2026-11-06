@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="860" viewBox="0 0 1500 860" font-family="SimHei">
+  <rect width="1500" height="860" fill="#ffffff"/>
+  <rect x="0" y="0" width="1500" height="90" fill="#b3541e"/>
+  <text x="750" y="55" text-anchor="middle" font-size="30" font-weight="bold" fill="#ffffff">TC-D 故障场景 · 依赖故障注入与降级路径（20 条用例 + 2 压测）</text>
+
+  <!-- 中心系统 -->
+  <rect x="600" y="330" width="300" height="140" rx="14" fill="#fff3e0" stroke="#b3541e" stroke-width="3"/>
+  <text x="750" y="385" text-anchor="middle" font-size="22" font-weight="bold" fill="#7b3a10">入职材料一次告知系统</text>
+  <text x="750" y="420" text-anchor="middle" font-size="15" fill="#9c6f1b">故障时：友好报错 · 降级 · 恢复</text>
+  <text x="750" y="445" text-anchor="middle" font-size="14" fill="#9c6f1b">不崩溃 · 无脏数据 · 可回滚</text>
+
+  <!-- 依赖1 LLM -->
+  <rect x="60" y="130" width="240" height="110" rx="10" fill="#fdecea" stroke="#d64545" stroke-width="2" stroke-dasharray="8,5"/>
+  <text x="180" y="162" text-anchor="middle" font-size="17" font-weight="bold" fill="#a52828">LLM 服务（D-01~04）</text>
+  <text x="180" y="190" text-anchor="middle" font-size="13" fill="#8a3232">注入：超时 30s / 5xx / 畸形 JSON</text>
+  <text x="180" y="214" text-anchor="middle" font-size="13" fill="#8a3232">降级：SSE event:error 3001</text>
+  <line x1="300" y1="185" x2="592" y2="360" stroke="#d64545" stroke-width="2.5"/>
+  <polygon points="598,364 580,352 584,368" fill="#d64545"/>
+
+  <!-- 依赖2 PostgreSQL -->
+  <rect x="60" y="280" width="240" height="110" rx="10" fill="#fdecea" stroke="#d64545" stroke-width="2" stroke-dasharray="8,5"/>
+  <text x="180" y="312" text-anchor="middle" font-size="17" font-weight="bold" fill="#a52828">PostgreSQL（D-05~06）</text>
+  <text x="180" y="340" text-anchor="middle" font-size="13" fill="#8a3232">注入：断连 / 慢查询 5s</text>
+  <text x="180" y="364" text-anchor="middle" font-size="13" fill="#8a3232">降级：连接池自愈，恢复 &lt; 3s</text>
+  <line x1="300" y1="335" x2="592" y2="380" stroke="#d64545" stroke-width="2.5"/>
+  <polygon points="598,382 580,372 582,390" fill="#d64545"/>
+
+  <!-- 依赖3 Redis -->
+  <rect x="60" y="430" width="240" height="110" rx="10" fill="#fdecea" stroke="#d64545" stroke-width="2" stroke-dasharray="8,5"/>
+  <text x="180" y="462" text-anchor="middle" font-size="17" font-weight="bold" fill="#a52828">Redis（D-07）</text>
+  <text x="180" y="490" text-anchor="middle" font-size="13" fill="#8a3232">注入：进程停止</text>
+  <text x="180" y="514" text-anchor="middle" font-size="13" fill="#8a3232">降级：无缓存直查，功能不中断</text>
+  <line x1="300" y1="485" x2="592" y2="420" stroke="#d64545" stroke-width="2.5"/>
+  <polygon points="598,416 580,412 586,428" fill="#d64545"/>
+
+  <!-- 依赖4 OCR -->
+  <rect x="1200" y="130" width="240" height="110" rx="10" fill="#fdecea" stroke="#d64545" stroke-width="2" stroke-dasharray="8,5"/>
+  <text x="1320" y="162" text-anchor="middle" font-size="17" font-weight="bold" fill="#a52828">OCR 服务（D-08~10）</text>
+  <text x="1320" y="190" text-anchor="middle" font-size="13" fill="#8a3232">注入：超时 / 崩溃 / 乱码</text>
+  <text x="1320" y="214" text-anchor="middle" font-size="13" fill="#8a3232">降级：转存疑态转人工</text>
+  <line x1="1200" y1="185" x2="908" y2="360" stroke="#d64545" stroke-width="2.5"/>
+  <polygon points="902,364 916,352 920,368" fill="#d64545"/>
+
+  <!-- 依赖5 发票API（fail-closed 红线） -->
+  <rect x="1200" y="280" width="240" height="130" rx="10" fill="#c53030" stroke="#7a1010" stroke-width="3"/>
+  <text x="1320" y="312" text-anchor="middle" font-size="17" font-weight="bold" fill="#ffffff">发票查验 API（D-11~12）</text>
+  <text x="1320" y="340" text-anchor="middle" font-size="13" fill="#ffd9d9">注入：超时 / Key 失效</text>
+  <text x="1320" y="364" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">红线：fail-closed</text>
+  <text x="1320" y="390" text-anchor="middle" font-size="13" fill="#ffd9d9">validated 禁止置 true → 4002</text>
+  <line x1="1200" y1="345" x2="908" y2="380" stroke="#7a1010" stroke-width="3"/>
+  <polygon points="902,382 918,372 920,390" fill="#7a1010"/>
+
+  <!-- 依赖6 MinIO / SSE / 其他 -->
+  <rect x="1200" y="450" width="240" height="150" rx="10" fill="#fdecea" stroke="#d64545" stroke-width="2" stroke-dasharray="8,5"/>
+  <text x="1320" y="482" text-anchor="middle" font-size="17" font-weight="bold" fill="#a52828">其他依赖（D-13~17）</text>
+  <text x="1320" y="510" text-anchor="middle" font-size="13" fill="#8a3232">SSE 断连：终止落库无孤儿</text>
+  <text x="1320" y="534" text-anchor="middle" font-size="13" fill="#8a3232">MinIO 不可用：上传回滚</text>
+  <text x="1320" y="558" text-anchor="middle" font-size="13" fill="#8a3232">磁盘满：告警拒写不丢审计</text>
+  <text x="1320" y="582" text-anchor="middle" font-size="13" fill="#8a3232">索引损坏：重建后命中率恢复</text>
+  <line x1="1200" y1="505" x2="908" y2="420" stroke="#d64545" stroke-width="2.5"/>
+  <polygon points="902,416 918,410 914,428" fill="#d64545"/>
+
+  <!-- 底部：系统级故障与恢复 -->
+  <rect x="60" y="620" width="1380" height="190" rx="10" fill="#fff8e1" stroke="#e08c00" stroke-width="2"/>
+  <text x="750" y="658" text-anchor="middle" font-size="19" font-weight="bold" fill="#7b5300">系统级故障与恢复（D-18~20 + 压测 PT-01/02）</text>
+  <text x="90" y="695" font-size="15" fill="#7b5300">并发 50 用户问答：错误率 &lt; 1%，P95 首 token &lt; 3s　|　进程重启：会话草稿 DB 恢复，进行中任务标记中断　|　时钟回拨：JWT 容错 + 审计时间戳告警</text>
+  <text x="90" y="730" font-size="15" fill="#7b5300">PT-01 清单压测：全规则组合并发 100，P95 &lt; 2s，错误率 &lt; 0.5%（AC-08）</text>
+  <text x="90" y="765" font-size="15" fill="#7b5300">PT-02 SSE 长稳：200 并发 30 分钟，内存增长 &lt; 20%，断流率 &lt; 0.1%</text>
+</svg>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="760" viewBox="0 0 1500 760" font-family="SimHei">
+  <rect width="1500" height="760" fill="#ffffff"/>
+  <rect x="0" y="0" width="1500" height="90" fill="#1e6b3a"/>
+  <text x="750" y="55" text-anchor="middle" font-size="30" font-weight="bold" fill="#ffffff">TC-A 正常链路 · 端到端主流程（40 条用例）</text>
+
+  <!-- 主流程 8 节点 -->
+  <g>
+    <rect x="47" y="200" width="160" height="80" rx="10" fill="#e6f4ea" stroke="#1e6b3a" stroke-width="2"/>
+    <text x="127" y="232" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e4620">1 登录鉴权</text>
+    <text x="127" y="260" text-anchor="middle" font-size="13" fill="#4a5568">A-01~04</text>
+
+    <rect x="225" y="200" width="160" height="80" rx="10" fill="#e6f4ea" stroke="#1e6b3a" stroke-width="2"/>
+    <text x="305" y="232" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e4620">2 政策问答</text>
+    <text x="305" y="260" text-anchor="middle" font-size="13" fill="#4a5568">A-05~14</text>
+
+    <rect x="403" y="200" width="160" height="80" rx="10" fill="#e6f4ea" stroke="#1e6b3a" stroke-width="2"/>
+    <text x="483" y="232" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e4620">3 清单生成</text>
+    <text x="483" y="260" text-anchor="middle" font-size="13" fill="#4a5568">A-15~20</text>
+
+    <rect x="581" y="200" width="160" height="80" rx="10" fill="#e6f4ea" stroke="#1e6b3a" stroke-width="2"/>
+    <text x="661" y="232" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e4620">4 材料上传</text>
+    <text x="661" y="260" text-anchor="middle" font-size="13" fill="#4a5568">A-21~26</text>
+
+    <rect x="759" y="200" width="160" height="80" rx="10" fill="#e6f4ea" stroke="#1e6b3a" stroke-width="2"/>
+    <text x="839" y="232" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e4620">5 OCR预检</text>
+    <text x="839" y="260" text-anchor="middle" font-size="13" fill="#4a5568">A-21~26</text>
+
+    <rect x="937" y="200" width="160" height="80" rx="10" fill="#e6f4ea" stroke="#1e6b3a" stroke-width="2"/>
+    <text x="1017" y="232" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e4620">6 人工确认</text>
+    <text x="1017" y="260" text-anchor="middle" font-size="13" fill="#4a5568">A-27~31</text>
+
+    <rect x="1115" y="200" width="160" height="80" rx="10" fill="#e6f4ea" stroke="#1e6b3a" stroke-width="2"/>
+    <text x="1195" y="232" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e4620">7 留痕归档</text>
+    <text x="1195" y="260" text-anchor="middle" font-size="13" fill="#4a5568">A-27~35</text>
+
+    <rect x="1293" y="200" width="160" height="80" rx="10" fill="#e6f4ea" stroke="#1e6b3a" stroke-width="2"/>
+    <text x="1373" y="232" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e4620">8 审计导出</text>
+    <text x="1373" y="260" text-anchor="middle" font-size="13" fill="#4a5568">A-39~40</text>
+  </g>
+  <!-- 箭头 -->
+  <g stroke="#4a5568" stroke-width="2.5">
+    <line x1="207" y1="240" x2="221" y2="240"/>
+    <line x1="385" y1="240" x2="399" y2="240"/>
+    <line x1="563" y1="240" x2="577" y2="240"/>
+    <line x1="741" y1="240" x2="755" y2="240"/>
+    <line x1="919" y1="240" x2="933" y2="240"/>
+    <line x1="1097" y1="240" x2="1111" y2="240"/>
+    <line x1="1275" y1="240" x2="1289" y2="240"/>
+  </g>
+  <g fill="#4a5568">
+    <polygon points="223,240 213,235 213,245"/>
+    <polygon points="401,240 391,235 391,245"/>
+    <polygon points="579,240 569,235 569,245"/>
+    <polygon points="757,240 747,235 747,245"/>
+    <polygon points="935,240 925,235 925,245"/>
+    <polygon points="1113,240 1103,235 1103,245"/>
+    <polygon points="1291,240 1281,235 1281,245"/>
+  </g>
+
+  <!-- 量化检查点 -->
+  <g>
+    <rect x="47" y="330" width="160" height="110" rx="8" fill="#fff8e1" stroke="#e08c00" stroke-width="1.5"/>
+    <text x="127" y="360" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b5300">检查点</text>
+    <text x="127" y="386" text-anchor="middle" font-size="13" fill="#5d4391">登录 &lt; 800ms</text>
+    <text x="127" y="410" text-anchor="middle" font-size="13" fill="#5d4391">错密 3 次返回 1006</text>
+
+    <rect x="225" y="330" width="160" height="110" rx="8" fill="#fff8e1" stroke="#e08c00" stroke-width="1.5"/>
+    <text x="305" y="360" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b5300">检查点</text>
+    <text x="305" y="386" text-anchor="middle" font-size="13" fill="#5d4391">引用溯源 ≥ 95%</text>
+    <text x="305" y="410" text-anchor="middle" font-size="13" fill="#5d4391">首 token &lt; 1.5s</text>
+
+    <rect x="403" y="330" width="160" height="110" rx="8" fill="#fff8e1" stroke="#e08c00" stroke-width="1.5"/>
+    <text x="483" y="360" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b5300">检查点</text>
+    <text x="483" y="386" text-anchor="middle" font-size="13" fill="#5d4391">P95 &lt; 2s（AC-08）</text>
+    <text x="483" y="410" text-anchor="middle" font-size="13" fill="#5d4391">与规则库 100% 一致</text>
+
+    <rect x="581" y="330" width="160" height="110" rx="8" fill="#fff8e1" stroke="#e08c00" stroke-width="1.5"/>
+    <text x="661" y="360" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b5300">检查点</text>
+    <text x="661" y="386" text-anchor="middle" font-size="13" fill="#5d4391">缺件清单一次给全</text>
+    <text x="661" y="410" text-anchor="middle" font-size="13" fill="#5d4391">仅三态输出</text>
+
+    <rect x="759" y="330" width="160" height="110" rx="8" fill="#fff8e1" stroke="#e08c00" stroke-width="1.5"/>
+    <text x="839" y="360" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b5300">检查点</text>
+    <text x="839" y="386" text-anchor="middle" font-size="13" fill="#5d4391">存疑转人工</text>
+    <text x="839" y="410" text-anchor="middle" font-size="13" fill="#5d4391">无结论性判定（f05）</text>
+
+    <rect x="937" y="330" width="160" height="110" rx="8" fill="#fff8e1" stroke="#e08c00" stroke-width="1.5"/>
+    <text x="1017" y="360" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b5300">检查点</text>
+    <text x="1017" y="386" text-anchor="middle" font-size="13" fill="#5d4391">4004 未确认拦截</text>
+    <text x="1017" y="410" text-anchor="middle" font-size="13" fill="#5d4391">确认后 4002 解除</text>
+
+    <rect x="1115" y="330" width="160" height="110" rx="8" fill="#fff8e1" stroke="#e08c00" stroke-width="1.5"/>
+    <text x="1195" y="360" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b5300">检查点</text>
+    <text x="1195" y="386" text-anchor="middle" font-size="13" fill="#5d4391">四要素非空 100%</text>
+    <text x="1195" y="410" text-anchor="middle" font-size="13" fill="#5d4391">工具调用全落日志</text>
+
+    <rect x="1293" y="330" width="160" height="110" rx="8" fill="#fff8e1" stroke="#e08c00" stroke-width="1.5"/>
+    <text x="1373" y="360" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b5300">检查点</text>
+    <text x="1373" y="386" text-anchor="middle" font-size="13" fill="#5d4391">导出含四要素</text>
+    <text x="1373" y="410" text-anchor="middle" font-size="13" fill="#5d4391">AC-03 口径</text>
+  </g>
+
+  <!-- 用例分布 -->
+  <rect x="47" y="500" width="1406" height="180" rx="10" fill="#f0f7ff" stroke="#2b6cb0" stroke-width="1.5"/>
+  <text x="750" y="540" text-anchor="middle" font-size="20" font-weight="bold" fill="#1e3a5f">40 条用例分布：登录会话 4 ｜ 政策问答 10 ｜ 清单生成 6 ｜ 材料预检 6 ｜ 确认留痕 5 ｜ 工具链 5 ｜ 管理后台 3 ｜ 审计导出 2</text>
+  <text x="750" y="585" text-anchor="middle" font-size="16" fill="#3d5a80">通过标准：≥ 98%（最多 1 例非阻断缺陷）· P0 缺陷 = 0 · 核心覆盖率 ≥ 80%</text>
+  <text x="750" y="630" text-anchor="middle" font-size="16" fill="#3d5a80">判定方法：每例记录实际值 vs 断言值，任一断言不满足即判失败并记录缺陷等级</text>
+</svg>
