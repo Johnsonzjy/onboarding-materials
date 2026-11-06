@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="2080" viewBox="0 0 1440 2080" font-family="SimHei">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4a5568"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1440" height="2080" fill="#ffffff"/>
+
+  <!-- ===== 头部 ===== -->
+  <rect x="0" y="0" width="1440" height="150" fill="#1e3a5f"/>
+  <text x="720" y="68" text-anchor="middle" font-size="34" font-weight="bold" fill="#ffffff">入职材料一次告知 · 业务流程图（访谈修订版）</text>
+  <text x="720" y="108" text-anchor="middle" font-size="16" fill="#bcd0e8">修订依据：四份访谈记录（顾明岚 · 业务负责人，turn-2/12/14/16） · 演练事实 f01/f02/f04/f05 · 2026-11-06</text>
+  <text x="720" y="136" text-anchor="middle" font-size="14" fill="#8fa9cc">跨区域入职材料协同 · 上海外服（集团）有限公司 · 现状业务链路</text>
+
+  <rect x="0" y="150" width="1440" height="42" fill="#eef3fa"/>
+  <rect x="60" y="161" width="14" height="14" fill="#d64545"/>
+  <text x="82" y="174" font-size="14" fill="#4a5568">典型问题 · 交接点（访谈核实）</text>
+  <rect x="330" y="161" width="14" height="14" fill="#2b6cb0"/>
+  <text x="352" y="174" font-size="14" fill="#4a5568">访谈核实要点</text>
+  <rect x="560" y="161" width="14" height="14" fill="#e08c00"/>
+  <text x="582" y="174" font-size="14" fill="#4a5568">验收关卡（f02）</text>
+  <rect x="760" y="161" width="14" height="14" fill="#7c5cbf"/>
+  <text x="782" y="174" font-size="14" fill="#4a5568">治理与边界（f04/f05）</text>
+
+  <!-- ===== 泳道段背景 ===== -->
+  <rect x="40" y="200" width="1360" height="230" fill="#f3f8ff"/>
+  <rect x="40" y="200" width="160" height="34" fill="#2b6cb0"/>
+  <text x="120" y="223" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">① 客户提交</text>
+
+  <rect x="40" y="430" width="1360" height="470" fill="#f6f9ff"/>
+  <rect x="40" y="430" width="160" height="34" fill="#2b6cb0"/>
+  <text x="120" y="453" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">② 区域核对</text>
+
+  <rect x="40" y="900" width="1360" height="240" fill="#f3f8ff"/>
+  <rect x="40" y="900" width="160" height="34" fill="#2b6cb0"/>
+  <text x="120" y="923" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">③ 补件</text>
+
+  <rect x="40" y="1140" width="1360" height="460" fill="#f6f9ff"/>
+  <rect x="40" y="1140" width="160" height="34" fill="#2b6cb0"/>
+  <text x="120" y="1163" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">④ 服务确认</text>
+
+  <!-- ===== 主流程 ===== -->
+  <!-- 开始 -->
+  <ellipse cx="730" cy="265" rx="180" ry="30" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="730" y="271" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3a5f">开始：客户提出用工 / 入职需求</text>
+  <line x1="730" y1="295" x2="730" y2="318" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- S1 客户建单 -->
+  <rect x="560" y="320" width="340" height="64" rx="10" fill="#e8f1fc" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="730" y="346" text-anchor="middle" font-size="19" font-weight="bold" fill="#1e3a5f">1. 客户建单</text>
+  <text x="730" y="370" text-anchor="middle" font-size="14" fill="#4a5568">一次提交：入职服务单 + 员工基础信息</text>
+  <line x1="730" y1="384" x2="730" y2="468" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- S2 区域清单匹配 -->
+  <rect x="560" y="470" width="340" height="64" rx="10" fill="#e8f1fc" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="730" y="496" text-anchor="middle" font-size="19" font-weight="bold" fill="#1e3a5f">2. 区域清单匹配</text>
+  <text x="730" y="520" text-anchor="middle" font-size="14" fill="#4a5568">按员工岗位与归属地匹配区域材料清单</text>
+  <line x1="730" y1="534" x2="730" y2="578" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- D1 判断 -->
+  <polygon points="730,580 920,625 730,670 540,625" fill="#fff7e0" stroke="#e08c00" stroke-width="2"/>
+  <text x="730" y="618" text-anchor="middle" font-size="17" font-weight="bold" fill="#7b5300">清单版本统一、</text>
+  <text x="730" y="642" text-anchor="middle" font-size="17" font-weight="bold" fill="#7b5300">口径一致？</text>
+  <line x1="730" y1="670" x2="730" y2="738" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="742" y="710" font-size="14" fill="#2f855a">是</text>
+
+  <!-- S3 材料核对 -->
+  <rect x="560" y="740" width="340" height="64" rx="10" fill="#e8f1fc" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="730" y="766" text-anchor="middle" font-size="19" font-weight="bold" fill="#1e3a5f">3. 材料核对</text>
+  <text x="730" y="790" text-anchor="middle" font-size="14" fill="#4a5568">逐项核对：原件 / 复印件 / 关键字段</text>
+  <line x1="730" y1="804" x2="730" y2="938" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- S4 补件确认 -->
+  <rect x="560" y="940" width="340" height="64" rx="10" fill="#e8f1fc" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="730" y="966" text-anchor="middle" font-size="19" font-weight="bold" fill="#1e3a5f">4. 补件确认</text>
+  <text x="730" y="990" text-anchor="middle" font-size="14" fill="#4a5568">缺件清单一次给全，标注补件方式与时限</text>
+  <line x1="730" y1="1004" x2="730" y2="1028" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- D2 判断 -->
+  <polygon points="730,1030 910,1075 730,1120 550,1075" fill="#fff7e0" stroke="#e08c00" stroke-width="2"/>
+  <text x="730" y="1081" text-anchor="middle" font-size="17" font-weight="bold" fill="#7b5300">缺件清单一次给全？</text>
+  <line x1="730" y1="1120" x2="730" y2="1178" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="742" y="1156" font-size="14" fill="#2f855a">是</text>
+
+  <!-- S5 人工复核与授权确认 -->
+  <rect x="560" y="1180" width="340" height="64" rx="10" fill="#e6f4ea" stroke="#2f855a" stroke-width="2"/>
+  <text x="730" y="1206" text-anchor="middle" font-size="19" font-weight="bold" fill="#1e4620">5. 人工复核与授权确认</text>
+  <text x="730" y="1230" text-anchor="middle" font-size="14" fill="#4a5568">责任到人、来源可追溯（重点交接点）</text>
+  <line x1="730" y1="1244" x2="730" y2="1288" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- S6 服务交接 -->
+  <rect x="560" y="1290" width="340" height="64" rx="10" fill="#e8f1fc" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="730" y="1316" text-anchor="middle" font-size="19" font-weight="bold" fill="#1e3a5f">6. 服务交接</text>
+  <text x="730" y="1340" text-anchor="middle" font-size="14" fill="#4a5568">交接记录归档，服务完成可追溯</text>
+  <line x1="730" y1="1354" x2="730" y2="1398" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- D3 判断 -->
+  <polygon points="730,1400 915,1445 730,1490 545,1445" fill="#fff7e0" stroke="#e08c00" stroke-width="2"/>
+  <text x="730" y="1451" text-anchor="middle" font-size="17" font-weight="bold" fill="#7b5300">交接记录完整可追溯？</text>
+  <line x1="730" y1="1490" x2="730" y2="1558" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="742" y="1530" font-size="14" fill="#2f855a">是</text>
+
+  <!-- ===== 验收关卡（新增，f02） ===== -->
+  <rect x="340" y="1560" width="780" height="90" rx="12" fill="#fff3e0" stroke="#e08c00" stroke-width="2.5"/>
+  <text x="730" y="1592" text-anchor="middle" font-size="20" font-weight="bold" fill="#7b5300">验收关卡（f02）</text>
+  <text x="730" y="1618" text-anchor="middle" font-size="15" fill="#7b5300">抽查 50 单 · 至少 45 单一次给出完整缺件清单</text>
+  <text x="730" y="1640" text-anchor="middle" font-size="13" fill="#9c6f1b">未达标 → 定位交接点纳入复盘　|　达标 → 写入试点方案</text>
+  <line x1="730" y1="1650" x2="730" y2="1715" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 结束 -->
+  <ellipse cx="730" cy="1745" rx="200" ry="30" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="730" y="1751" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3a5f">结束：交付完成｜一次告知 · 无重复补件</text>
+
+  <!-- ===== 左侧：典型问题（红色虚线） ===== -->
+  <rect x="60" y="560" width="380" height="130" rx="8" fill="#fdeaea" stroke="#d64545" stroke-width="2" stroke-dasharray="7,4"/>
+  <text x="80" y="588" font-size="16" font-weight="bold" fill="#a52828">典型问题 · 交接点 1（f01）</text>
+  <text x="80" y="613" font-size="14" fill="#8a3232">重复核对集中在哪些字段？</text>
+  <text x="80" y="636" font-size="14" fill="#8a3232">各区域清单口径不一致，版本不统一</text>
+  <text x="80" y="659" font-size="14" fill="#8a3232">需人工核对版本与口径（回归人工）</text>
+
+  <rect x="60" y="1010" width="380" height="130" rx="8" fill="#fdeaea" stroke="#d64545" stroke-width="2" stroke-dasharray="7,4"/>
+  <text x="80" y="1038" font-size="16" font-weight="bold" fill="#a52828">典型问题 · 交接点 2（f01/f02）</text>
+  <text x="80" y="1063" font-size="14" fill="#8a3232">缺件清单不完整 → 客户来回补件</text>
+  <text x="80" y="1086" font-size="14" fill="#8a3232">补件信息缺什么、缺几次？</text>
+  <text x="80" y="1109" font-size="14" fill="#8a3232">来回补件次数 = 复盘关键指标</text>
+
+  <rect x="60" y="1380" width="380" height="130" rx="8" fill="#fdeaea" stroke="#d64545" stroke-width="2" stroke-dasharray="7,4"/>
+  <text x="80" y="1408" font-size="16" font-weight="bold" fill="#a52828">典型问题 · 交接点 3（f01）</text>
+  <text x="80" y="1433" font-size="14" fill="#8a3232">责任落在谁身上？</text>
+  <text x="80" y="1456" font-size="14" fill="#8a3232">来源能否追溯？</text>
+  <text x="80" y="1479" font-size="14" fill="#8a3232">补记：单据来源 / 版本 / 权限</text>
+
+  <!-- 否 分支箭头 -->
+  <line x1="540" y1="625" x2="448" y2="625" stroke="#c53030" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="486" y="614" font-size="14" font-weight="bold" fill="#c53030">否</text>
+  <line x1="550" y1="1075" x2="448" y2="1075" stroke="#c53030" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="490" y="1064" font-size="14" font-weight="bold" fill="#c53030">否</text>
+  <line x1="545" y1="1445" x2="448" y2="1445" stroke="#c53030" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="488" y="1434" font-size="14" font-weight="bold" fill="#c53030">否</text>
+
+  <!-- ===== 右侧：访谈核实要点（蓝色虚线） ===== -->
+  <rect x="950" y="300" width="420" height="130" rx="8" fill="#f5f8ff" stroke="#2b6cb0" stroke-width="1.8" stroke-dasharray="7,4"/>
+  <text x="970" y="328" font-size="16" font-weight="bold" fill="#1e3a5f">访谈核实要点（f01）</text>
+  <text x="970" y="353" font-size="14" fill="#3d5a80">实际链路：客户提交 → 区域核对 → 补件 → 服务确认</text>
+  <text x="970" y="376" font-size="14" fill="#3d5a80">问题集中在交接点，而非单点操作</text>
+  <text x="970" y="399" font-size="14" fill="#3d5a80">待补数据：林亦舟现场样本 / 唐映秋交接记录</text>
+
+  <rect x="950" y="940" width="420" height="106" rx="8" fill="#f5f8ff" stroke="#2b6cb0" stroke-width="1.8" stroke-dasharray="7,4"/>
+  <text x="970" y="968" font-size="16" font-weight="bold" fill="#1e3a5f">补件核实（f02）</text>
+  <text x="970" y="993" font-size="14" fill="#3d5a80">缺件清单是否一次给全？来回补件几次？</text>
+  <text x="970" y="1016" font-size="14" fill="#3d5a80">按 50 单抽查口径逐单登记缺件项</text>
+
+  <rect x="950" y="1180" width="420" height="130" rx="8" fill="#f5f8ff" stroke="#2b6cb0" stroke-width="1.8" stroke-dasharray="7,4"/>
+  <text x="970" y="1208" font-size="16" font-weight="bold" fill="#1e3a5f">试点边界（f05）</text>
+  <text x="970" y="1233" font-size="14" fill="#3d5a80">只覆盖一个批次的入职服务单</text>
+  <text x="970" y="1256" font-size="14" fill="#3d5a80">只做材料完整性提示 · 不自动办理入职</text>
+  <text x="970" y="1279" font-size="14" fill="#3d5a80">不判断用工合法性 · 范围明确后不外扩</text>
+
+  <!-- ===== 左下：产出用途（紫色） ===== -->
+  <rect x="60" y="1545" width="240" height="120" rx="8" fill="#f3eefb" stroke="#7c5cbf" stroke-width="1.8" stroke-dasharray="7,4"/>
+  <text x="78" y="1573" font-size="15" font-weight="bold" fill="#4c3380">产出用途（f04）</text>
+  <text x="78" y="1597" font-size="13" fill="#5d4391">叶书确认前仅限内部</text>
+  <text x="78" y="1618" font-size="13" fill="#5d4391">傅景保留停止试点权</text>
+  <text x="78" y="1639" font-size="13" fill="#5d4391">停止条件待明确</text>
+
+  <!-- ===== 治理与边界 ===== -->
+  <rect x="40" y="1800" width="1360" height="140" fill="#f7f4fd" stroke="#b39ddb" stroke-width="1.5"/>
+  <text x="60" y="1830" font-size="18" font-weight="bold" fill="#4c3380">治理与边界（访谈 f04 / f05 核实）</text>
+  <rect x="60" y="1845" width="420" height="80" rx="8" fill="#ffffff" stroke="#7c5cbf" stroke-width="1.5"/>
+  <text x="78" y="1870" font-size="15" font-weight="bold" fill="#4c3380">试点边界（f05）</text>
+  <text x="78" y="1892" font-size="13" fill="#5d4391">只覆盖一个批次 · 只做材料完整性提示</text>
+  <text x="78" y="1912" font-size="13" fill="#5d4391">不自动办理入职 · 不判断用工合法性</text>
+  <rect x="510" y="1845" width="420" height="80" rx="8" fill="#ffffff" stroke="#7c5cbf" stroke-width="1.5"/>
+  <text x="528" y="1870" font-size="15" font-weight="bold" fill="#4c3380">风险控制（f04）</text>
+  <text x="528" y="1892" font-size="13" fill="#5d4391">傅景基于风险判断保留停止试点的权利</text>
+  <text x="528" y="1912" font-size="13" fill="#5d4391">触发停止的具体条件待其明确到环节</text>
+  <rect x="960" y="1845" width="420" height="80" rx="8" fill="#ffffff" stroke="#7c5cbf" stroke-width="1.5"/>
+  <text x="978" y="1870" font-size="15" font-weight="bold" fill="#4c3380">用途合规（f04）</text>
+  <text x="978" y="1892" font-size="13" fill="#5d4391">结果用途须叶书确认，未确认前仅限内部</text>
+  <text x="978" y="1912" font-size="13" fill="#5d4391">单据来源与对外用途须一并确认</text>
+
+  <!-- ===== 图例 ===== -->
+  <rect x="40" y="1955" width="1360" height="105" fill="#eef3fa"/>
+  <text x="60" y="1983" font-size="14" font-weight="bold" fill="#1e3a5f">图例</text>
+  <rect x="110" y="1970" width="22" height="14" fill="#e8f1fc" stroke="#2b6cb0" stroke-width="1.5"/>
+  <text x="140" y="1983" font-size="13" fill="#4a5568">流程步骤</text>
+  <polygon points="255,1966 275,1977 255,1988 235,1977" fill="#fff7e0" stroke="#e08c00" stroke-width="1.5"/>
+  <text x="285" y="1983" font-size="13" fill="#4a5568">判断分支</text>
+  <rect x="370" y="1970" width="22" height="14" fill="#fdeaea" stroke="#d64545" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="400" y="1983" font-size="13" fill="#4a5568">典型问题 · 交接点</text>
+  <rect x="545" y="1970" width="22" height="14" fill="#f5f8ff" stroke="#2b6cb0" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="575" y="1983" font-size="13" fill="#4a5568">访谈核实要点</text>
+  <rect x="700" y="1970" width="22" height="14" fill="#fff3e0" stroke="#e08c00" stroke-width="1.5"/>
+  <text x="730" y="1983" font-size="13" fill="#4a5568">验收关卡</text>
+  <rect x="825" y="1970" width="22" height="14" fill="#f7f4fd" stroke="#7c5cbf" stroke-width="1.5"/>
+  <text x="855" y="1983" font-size="13" fill="#4a5568">治理与边界</text>
+  <text x="60" y="2016" font-size="13" fill="#6b7a90">修订说明：依据 turn-2/12/14/16 四份访谈记录——问题集中在交接点而非单点操作（f01）；验收口径为抽查 50 单、至少 45 单一次给出完整缺件清单（f02）；</text>
+  <text x="60" y="2040" font-size="13" fill="#6b7a90">试点边界为只覆盖一个批次、只做材料完整性提示（f05）；傅景保留停止权、叶书确认用途（f04）。虚线框为本次修订新增标注，主流程六步与原版一致。</text>
+</svg>
